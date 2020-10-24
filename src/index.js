@@ -4,6 +4,7 @@ import http from 'http'
 import koaHelmet from 'koa-helmet'
 import koaCors from '@koa/cors'
 import koaBodyparser from 'koa-bodyparser'
+import router from './services/router'
 
 const Koa = new koa()
 const server = http.createServer(Koa.callback())
@@ -22,6 +23,9 @@ Koa.use(koaCors({
 	credentials: true,
 	maxAge: 86400,
 }))
+// https://github.com/koajs/router
+Koa.use(router.routes())
+Koa.use(router.allowedMethods())
 
 server.listen(global.ENV.PORT, () => {
 	console.log('Server listening on port: http://localhost:' + global.ENV.PORT)

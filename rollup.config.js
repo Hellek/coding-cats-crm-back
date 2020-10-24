@@ -13,6 +13,7 @@ export default {
 		'http',
 		'dotenv',
 		'koa',
+		'koa-router',
 		'koa-helmet',
 		'koa-bodyparser',
 		'@koa/cors',
