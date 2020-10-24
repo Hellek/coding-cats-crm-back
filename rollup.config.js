@@ -9,6 +9,9 @@ export default {
 		file: 'dist/index.js',
 		format: 'cjs',
 	},
+	external: [
+		'dotenv',
+	],
 	plugins: [
 		babel({
 			babelrc: false,

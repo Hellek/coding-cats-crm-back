@@ -20,6 +20,9 @@
 		"serve:build:dev": "cross-env NODE_ENV=development node dist/index.js",
 		"start": "npm run build && npm run serve:prod"
 	},
+	"dependencies": {
+		"dotenv": "8.2.0",
+	},
 	"devDependencies": {
 		"@babel/core": "7.11.6",
 		"@babel/plugin-proposal-optional-chaining": "7.11.0",
