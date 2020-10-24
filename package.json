@@ -15,6 +15,8 @@
 	},
 	"scripts": {
 		"dev": "cross-env NODE_ENV=development rollup -c -w",
+		"lint": "eslint src .eslintrc.js rollup.config.js --config .eslintrc.js",
+		"lint:fix": "eslint src .eslintrc.js rollup.config.js --config .eslintrc.js --fix",
 		"build": "cross-env NODE_ENV=production rollup -c",
 		"npm:install": "npm install",
 		"serve:build:prod": "cross-env NODE_ENV=production node dist/index.js",
@@ -40,6 +42,7 @@
 		"@babel/plugin-proposal-optional-chaining": "7.11.0",
 		"@rollup/plugin-run": "2.0.2",
 		"cross-env": "7.0.2",
+		"eslint": "^7.11.0",
 		"rollup": "2.29.0",
 		"rollup-plugin-babel": "4.4.0"
 	}
