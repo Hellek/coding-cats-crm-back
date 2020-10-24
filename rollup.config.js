@@ -13,6 +13,9 @@ export default {
 		'http',
 		'dotenv',
 		'koa',
+		'koa-helmet',
+		'koa-bodyparser',
+		'@koa/cors',
 	],
 	plugins: [
 		babel({
