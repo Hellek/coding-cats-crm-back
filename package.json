@@ -1,0 +1,31 @@
+{
+	"name": "coding-cats-back-template",
+	"description": "Designed by Coding cats",
+	"version": "1.0.0",
+	"private": false,
+	"main": "dist/index.js",
+	"author": {
+		"name": "Roman Basharin",
+		"email": "my@hellek.ru"
+	},
+	"license": "ISC",
+	"engines": {
+		"node": ">= 13.12.0",
+		"npm": ">= 6.14.4"
+	},
+	"scripts": {
+		"dev": "cross-env NODE_ENV=development rollup -c -w",
+		"build": "cross-env NODE_ENV=production rollup -c",
+		"serve:build:prod": "cross-env NODE_ENV=production node dist/index.js",
+		"serve:build:dev": "cross-env NODE_ENV=development node dist/index.js",
+		"start": "npm run build && npm run serve:prod"
+	},
+	"devDependencies": {
+		"@babel/core": "7.11.6",
+		"@babel/plugin-proposal-optional-chaining": "7.11.0",
+		"@rollup/plugin-run": "2.0.2",
+		"cross-env": "7.0.2",
+		"rollup": "2.29.0",
+		"rollup-plugin-babel": "4.4.0"
+	}
+}

@@ -1,0 +1,10 @@
+# directories
+node_modules
+dist
+temp
+
+# regex files
+
+
+# single files
+TODO.*
