@@ -7,4 +7,13 @@ const pool = new Pool({
 	port: global.ENV.DATABASE.port,
 })
 
-export default pool
+export default {
+	async query(text, params) {
+		try {
+			return await pool.query(text, params)
+		} catch (error) {
+			if (error.code === 'ECONNREFUSED') throw Error('Ошибка подключения к БД')
+			throw error
+		}
+	},
+}
