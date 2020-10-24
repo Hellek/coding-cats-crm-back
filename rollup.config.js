@@ -17,6 +17,7 @@ export default {
 		'koa-helmet',
 		'koa-bodyparser',
 		'@koa/cors',
+		'pg',
 	],
 	plugins: [
 		babel({
