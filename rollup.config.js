@@ -10,7 +10,9 @@ export default {
 		format: 'cjs',
 	},
 	external: [
+		'http',
 		'dotenv',
+		'koa',
 	],
 	plugins: [
 		babel({
