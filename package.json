@@ -16,6 +16,7 @@
 	"scripts": {
 		"dev": "cross-env NODE_ENV=development rollup -c -w",
 		"build": "cross-env NODE_ENV=production rollup -c",
+		"npm:install": "npm install",
 		"serve:build:prod": "cross-env NODE_ENV=production node dist/index.js",
 		"serve:build:dev": "cross-env NODE_ENV=development node dist/index.js",
 		"start": "npm run build && npm run serve:prod"
