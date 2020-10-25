@@ -6,6 +6,9 @@ class Users {
 	*/
 	async create(user) {
 		try {
+			const exists = await this.getByEmail(user.email)
+			if (exists) throw Error('Пользователь с таким email уже существует')
+
 			const text = 'INSERT INTO users(email, firstName, lastName, password, phone) VALUES($1, $2, $3, $4, $5) RETURNING id'
 			const values = [user.email, user.firstName, user.lastName, user.password, user.phone]
 			const { rows } = await DB.query(text, values)
