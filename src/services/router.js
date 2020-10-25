@@ -25,6 +25,18 @@ router.all('/:service?/:method?', async (ctx, next) => {
 	}
 })
 
+// Auth check
+if (global.ENV.HAS_AUTH_SERVICE) {
+	router.all('/:service/:method?', async (ctx, next) => {
+		if (ctx.session.authorized || ctx.params.service === 'auth') {
+			await next()
+			return
+		}
+
+		ctx.throw(401, 'Вы не авторизованы')
+	})
+}
+
 setServiceRoutes(router)
 
 export default router

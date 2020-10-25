@@ -16,8 +16,11 @@ export default {
 		'koa-router',
 		'koa-helmet',
 		'koa-bodyparser',
+		'koa-session',
 		'@koa/cors',
 		'pg',
+		'isemail',
+		'bcryptjs',
 	],
 	plugins: [
 		babel({

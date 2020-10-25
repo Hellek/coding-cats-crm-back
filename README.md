@@ -1,4 +1,6 @@
 # О проекте
+## Настройки окружения
+При `HAS_AUTH_SERVICE=true` необходимо настроить `ALLOWED_ORIGINS` например `ALLOWED_ORIGINS=["http://localhost:8080"]`
 
 # Deploying to Heroku
 

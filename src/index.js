@@ -4,6 +4,7 @@ import http from 'http'
 import koaHelmet from 'koa-helmet'
 import koaCors from '@koa/cors'
 import koaBodyparser from 'koa-bodyparser'
+import koaSession from 'koa-session'
 import router from './services/router'
 
 const Koa = new koa()
@@ -23,6 +24,14 @@ Koa.use(koaCors({
 	credentials: true,
 	maxAge: 86400,
 }))
+// https://github.com/koajs/session
+if (global.ENV.HAS_AUTH_SERVICE) {
+	Koa.keys = global.ENV.SESSION_KEYS
+
+	Koa.use(koaSession({
+		key: 'SID',
+	}, Koa))
+}
 // https://github.com/koajs/router
 Koa.use(router.routes())
 Koa.use(router.allowedMethods())
