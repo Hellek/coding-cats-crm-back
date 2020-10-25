@@ -6,7 +6,7 @@ class Users {
 	*/
 	async create(user) {
 		try {
-			const exists = await this.getByEmail(user.email)
+			const exists = await this.getByEmail(user)
 			if (exists) throw Error('Пользователь с таким email уже существует')
 
 			const text = 'INSERT INTO users(email, firstName, lastName, password, phone) VALUES($1, $2, $3, $4, $5) RETURNING id'
@@ -37,8 +37,9 @@ class Users {
 	/**
 	* @summary Запрос данных по пользователю по email (кроме пароля)
 	*/
-	async getByEmail(email) {
-		return (await DB.query('SELECT id, email, firstName, lastName, phone FROM users WHERE email=$1', [email])).rows[0]
+	async getByEmail({ email, getPassword = false }) {
+		const password = getPassword ? ', password' : ''
+		return (await DB.query(`SELECT id, email, firstName, lastName, phone${password} FROM users WHERE email=$1`, [email])).rows[0]
 	}
 
 	/**
