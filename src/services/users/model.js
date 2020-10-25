@@ -35,7 +35,14 @@ class Users {
 	}
 
 	/**
-	* @summary Запрос данных по пользователю (кроме пароля)
+	* @summary Запрос данных по пользователю по email (кроме пароля)
+	*/
+	async getByEmail(email) {
+		return (await DB.query('SELECT id, email, firstName, lastName, phone FROM users WHERE email=$1', [email])).rows[0]
+	}
+
+	/**
+	* @summary Запрос данных по пользователю по id (кроме пароля)
 	*/
 	async getById(id) {
 		return (await DB.query('SELECT id, email, firstName, lastName, phone FROM users WHERE id=$1', [id])).rows[0]
