@@ -38,7 +38,7 @@ class Users {
 	* @summary Запрос данных по пользователю (кроме пароля)
 	*/
 	async getById(id) {
-		return (await DB.query('SELECT id, email, firstName, lastName, password, phone FROM users WHERE id=$1', [id])).rows[0]
+		return (await DB.query('SELECT id, email, firstName, lastName, phone FROM users WHERE id=$1', [id])).rows[0]
 	}
 
 	/**
@@ -47,7 +47,7 @@ class Users {
 	async getList(filters = {
 		limit: 20,
 	}) {
-		const { rows } = await DB.query('SELECT id, email, firstName, lastName, password, phone FROM users LIMIT $1', [
+		const { rows } = await DB.query('SELECT id, email, firstName, lastName, phone FROM users LIMIT $1', [
 			filters.limit,
 		])
 
