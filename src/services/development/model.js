@@ -10,6 +10,7 @@ class Development {
 		if (tableName === 'users') {
 			sql = `CREATE TABLE users (
 				id serial NOT NULL,
+				active boolean NOT NULL DEFAULT FALSE,
 				email character varying(50) UNIQUE,
 				firstName character varying(50),
 				lastName character varying(50),
