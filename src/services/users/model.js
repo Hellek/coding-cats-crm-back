@@ -10,12 +10,11 @@ class Users {
 			const exists = await this.getByEmail(user)
 			if (exists) throw Error('Пользователь с таким email уже существует')
 
-			// Хэшируем пароль
-			user.password = await generateHash(user.password)
-
+			const passwordHash = await generateHash(user.password)
 			const text = 'INSERT INTO users(email, firstName, lastName, password, phone, active) VALUES($1, $2, $3, $4, $5, $6) RETURNING id'
-			const values = [user.email, user.firstName, user.lastName, user.password, user.phone, user.active]
+			const values = [user.email, user.firstName, user.lastName, passwordHash, user.phone, user.active]
 			const { rows } = await DB.query(text, values)
+
 			return rows[0].id
 		} catch (error) {
 			throw error
@@ -29,6 +28,22 @@ class Users {
 		const text = 'UPDATE users SET email=$2, firstName=$3, lastName=$4, phone=$5, active=$6 WHERE id=$1'
 		const values = [id, user.email, user.firstName, user.lastName, user.phone, user.active]
 		return 1 === (await DB.query(text, values)).rowCount
+	}
+
+	/**
+	* @summary Обновление пароля пользователя
+	*/
+	async updatePassword(id, password) {
+		const passwordHash = await generateHash(password)
+		const text = 'UPDATE users SET password=$2 WHERE id=$1'
+		const values = [id, passwordHash]
+
+		try {
+			await DB.query(text, values)
+		} catch (error) {
+			console.log(error)
+			throw Error('Ошибка обновления пароля')
+		}
 	}
 
 	/**

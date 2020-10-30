@@ -28,6 +28,14 @@ class Auth {
 
 		return user
 	}
+
+	async setPassword({ email, password, hash }) {
+		const user = await this.getValidUser({ email, password })
+
+		if (hash !== user.password) throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
+
+		await Users.updatePassword(user.id, password)
+	}
 }
 
 export default Auth
