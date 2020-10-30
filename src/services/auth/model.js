@@ -1,4 +1,4 @@
-import { isEmailValid } from '../utils/common'
+import { isEmailValid, compareHash } from '../utils/common'
 import UsersModel from '../users/model'
 
 const Users = new UsersModel
@@ -9,7 +9,7 @@ class Auth {
 		if (!password) throw Error('Не указан пароль')
 		if (!await isEmailValid(email)) throw Error('Не валидный емейл, проверьте написание')
 		const user = await Users.getByEmail({ email, getPassword: true })
-		if (user == null) throw Error('Неверная пара логин-пароль')
+		if (user == null || !await compareHash(password, user.password)) throw Error('Неверная пара логин-пароль')
 		if (!user.active) throw Error('Доступ к системе запрещён')
 
 		// Удаляем пароль и не нужные данные

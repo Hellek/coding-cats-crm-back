@@ -1,3 +1,4 @@
+import { generateHash } from '../utils/common'
 import DB from '../../core/DB'
 
 class Users {
@@ -8,6 +9,9 @@ class Users {
 		try {
 			const exists = await this.getByEmail(user)
 			if (exists) throw Error('Пользователь с таким email уже существует')
+
+			// Хэшируем пароль
+			user.password = await generateHash(user.password)
 
 			const text = 'INSERT INTO users(email, firstName, lastName, password, phone, active) VALUES($1, $2, $3, $4, $5, $6) RETURNING id'
 			const values = [user.email, user.firstName, user.lastName, user.password, user.phone, user.active]
