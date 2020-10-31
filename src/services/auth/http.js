@@ -23,6 +23,15 @@ router.post('/logout', async ctx => {
 	ctx.status = 200
 })
 
+router.post('/reset', async ctx => {
+	try {
+		await Auth.reset(ctx.request.body)
+		ctx.status = 200
+	} catch (error) {
+		ctx.throw(400, error.message)
+	}
+})
+
 router.put('/password', async ctx => {
 	try {
 		await Auth.setPassword(ctx.request.body)

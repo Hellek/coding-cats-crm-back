@@ -56,8 +56,8 @@ class Users {
 	/**
 	* @summary Запрос данных по пользователю по email (кроме пароля)
 	*/
-	async getByEmail({ email, getPassword = false }) {
-		const password = getPassword ? ', password' : ''
+	async getByEmail({ email, getPasswordHash = false }) {
+		const password = getPasswordHash ? ', password' : ''
 		return (await DB.query(`SELECT id, active, email, firstName, lastName, phone${password} FROM users WHERE email=$1`, [email])).rows[0]
 	}
 
