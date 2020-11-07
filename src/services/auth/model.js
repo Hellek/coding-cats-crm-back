@@ -1,7 +1,9 @@
 import { isEmailValid, compareHash } from '../utils/common'
 import UsersModel from '../users/model'
+import EmailModel from '../email/model'
 
 const Users = new UsersModel
+const Email = new EmailModel
 
 class Auth {
 	async validateAuthData({ email, password }) {
@@ -13,7 +15,7 @@ class Auth {
 	async getValidUser({ email, password }) {
 		await this.validateAuthData({ email, password })
 		const user = await Users.getByEmail({ email, getPasswordHash: true })
-		if (!user.active) throw Error('Доступ к системе запрещён')
+		if (user != null && !user.active) throw Error('Доступ к системе запрещён')
 		return user
 	}
 
@@ -36,24 +38,20 @@ class Auth {
 		await Users.updatePassword(user.id, password)
 	}
 
-	async reset({ email }) {
+	async resetPassword({ email }) {
 		const user = await this.getValidUser({ email, password: 'mock password' })
 
-		// const frontServerUrl = `${Env.domains.front.protocol}://${Env.domains.front.domain}` + (Env.domains.front.port ? `:${Env.domains.front.port}` : '')
+		if (user == null) return
 
-		/* const res = await Emails.sendEmail({
-			to: ctx.request.body.email,
+		let html = 'Поступил запрос на смену пароля. Если он поступил от вас, то перейдите по <a href="'
+		html += `${global.ENV.URLS.frontend}/?set-new-password=true&hash=${user.password}&email=${email}`
+		html += '">этой ссылке</a> для ввода нового пароля'
+
+		await Email.send({
+			to: email,
 			subject: 'Запрос на смену пароля',
-			html: 'Поступил запрос на смену пароля. Если запрос поступил от вас, то перейдите по <a href="'
-				+ `${frontServerUrl}/auth/setnewpass?hash=${user.password}&email=${ctx.request.body.email}`
-				+ '">этой ссылке</a> для ввода нового пароля'
+			html,
 		})
-
-		if (res) {
-			ctx.status = 200
-		} else {
-			ctx.throw(400, 'Не получилось отправить письмо на почту')
-		} */
 	}
 }
 

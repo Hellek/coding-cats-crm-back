@@ -11,7 +11,6 @@ router.post('/login', async ctx => {
 			ctx.session.authorized = true
 		}
 
-		ctx.status = 200
 		ctx.body = ctx.session.user
 	} catch (error) {
 		ctx.throw(400, error.message)
@@ -23,10 +22,10 @@ router.post('/logout', async ctx => {
 	ctx.status = 200
 })
 
-router.post('/reset', async ctx => {
+router.post('/password/reset', async ctx => {
 	try {
-		await Auth.reset(ctx.request.body)
-		ctx.status = 200
+		await Auth.resetPassword(ctx.request.body)
+		ctx.body = 'Мы выслали данные для сброса пароля (если вы регистрировались ранее)'
 	} catch (error) {
 		ctx.throw(400, error.message)
 	}

@@ -21,6 +21,7 @@ export default {
 		'pg',
 		'isemail',
 		'bcryptjs',
+		'nodemailer',
 	],
 	plugins: [
 		babel({
