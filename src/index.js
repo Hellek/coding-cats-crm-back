@@ -6,7 +6,7 @@ import koaCors from '@koa/cors'
 import koaBodyparser from 'koa-bodyparser'
 import koaSession from 'koa-session'
 import router from './services/router'
-import socket from './services/socket'
+import socket from './services/socket-router'
 
 const Koa = new koa()
 const server = http.createServer(Koa.callback())
