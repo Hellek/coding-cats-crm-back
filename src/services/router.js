@@ -28,7 +28,7 @@ router.all('/:service?/:method?', async (ctx, next) => {
 // Auth check
 if (global.ENV.HAS_AUTH_SERVICE) {
 	router.all(/.*/, async (ctx, next) => {
-		if (ctx.session.authorized || ctx.params.service === 'auth') {
+		if (ctx.session.authorized || ctx.url.split('/')[1] === 'auth') {
 			await next()
 			return
 		}
