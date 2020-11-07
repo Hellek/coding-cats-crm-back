@@ -21,6 +21,7 @@ export default {
 		'pg',
 		'isemail',
 		'bcryptjs',
+		'socket.io',
 		'nodemailer',
 	],
 	plugins: [

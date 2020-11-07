@@ -6,6 +6,7 @@ import koaCors from '@koa/cors'
 import koaBodyparser from 'koa-bodyparser'
 import koaSession from 'koa-session'
 import router from './services/router'
+import socket from './services/socket'
 
 const Koa = new koa()
 const server = http.createServer(Koa.callback())
@@ -35,6 +36,8 @@ if (global.ENV.HAS_AUTH_SERVICE) {
 // https://github.com/koajs/router
 Koa.use(router.routes())
 Koa.use(router.allowedMethods())
+
+if (global.ENV.HAS_WEBSOCKET_SERVICE) socket(server)
 
 server.listen(global.ENV.PORT, () => {
 	console.log('Server listening on port: http://localhost:' + global.ENV.PORT)
