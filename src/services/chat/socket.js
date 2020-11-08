@@ -1,18 +1,27 @@
+const chatUsers = {}
+const messages = []
+
 export default function (io, socket) {
-	socket.on('chat/user-credentials', user => {
+	socket.on('chat/user/join', user => {
+		chatUsers[user.id] = user
 		socket.user = user
-		socket.broadcast.emit('chat/user/connect', user)
+		socket.emit('chat/messages/update', messages)
+		io.emit('chat/users/update', chatUsers)
 	})
 
 	socket.on('chat', text => {
-		io.emit('chat', {
+		const message = {
 			user: socket.user,
 			text,
 			time: new Date,
-		})
+		}
+
+		messages.push(message)
+		io.emit('chat', message)
 	})
 
 	socket.on('disconnect', () => {
-		io.emit('chat/user/disconnect', socket.user)
+		delete chatUsers[socket.user.id]
+		io.emit('chat/users/update', chatUsers)
 	})
 }
