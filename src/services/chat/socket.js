@@ -10,6 +10,8 @@ export default function (io, socket) {
 	})
 
 	socket.on('chat', text => {
+		if (!text.trim()) return
+
 		const message = {
 			user: socket.user,
 			text,
