@@ -21,6 +21,7 @@
 		"serve:build:dev": "cross-env NODE_ENV=development node dist/index.js",
 		"heroku:deploy": "git push heroku master",
 		"heroku:logs": "heroku logs --tail",
+		"heroku:pg:connect": "heroku pg:psql postgresql-animate-99818 --app coding-cats-crm-back",
 		"start": "npm run build && npm run serve:build:prod"
 	},
 	"dependencies": {
