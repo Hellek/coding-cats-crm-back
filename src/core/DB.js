@@ -1,6 +1,7 @@
 import { Pool } from 'pg'
 
 const pool = new Pool({
+	host: global.ENV.DATABASE.host,
 	database: global.ENV.DATABASE.name,
 	user: global.ENV.DATABASE.user,
 	password: global.ENV.DATABASE.pass,
