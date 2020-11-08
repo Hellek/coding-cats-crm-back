@@ -3,11 +3,8 @@
 При `HAS_AUTH_SERVICE=true` необходимо настроить `ALLOWED_ORIGINS` например `ALLOWED_ORIGINS=["http://localhost:8080"]`
 
 # Deploying to Heroku
-
-`heroku create` - "подключить" текущий проект к Heroku
-
+`heroku create coding-cats-crm-back` - "подключить" текущий проект к Heroku
 `git push heroku main`
-
 `heroku open`
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)

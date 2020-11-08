@@ -1,5 +1,5 @@
 {
-	"name": "coding-cats-back-template",
+	"name": "coding-cats-crm-back",
 	"description": "Designed by Coding cats",
 	"version": "1.0.0",
 	"private": false,
@@ -19,11 +19,17 @@
 		"npm:install": "npm install",
 		"serve:build:prod": "cross-env NODE_ENV=production node dist/index.js",
 		"serve:build:dev": "cross-env NODE_ENV=development node dist/index.js",
-		"start": "npm run build && npm run serve:prod"
+		"heroku:deploy": "git push heroku master",
+		"heroku:logs": "heroku logs --tail",
+		"start": "npm run build && npm run serve:build:prod"
 	},
 	"dependencies": {
+		"@babel/core": "7.11.6",
+		"@babel/plugin-proposal-optional-chaining": "7.11.0",
 		"@koa/cors": "3.1.0",
+		"@rollup/plugin-run": "2.0.2",
 		"bcryptjs": "2.4.3",
+		"cross-env": "7.0.2",
 		"dotenv": "8.2.0",
 		"isemail": "3.2.0",
 		"koa": "2.13.0",
@@ -33,14 +39,8 @@
 		"koa-session": "6.1.0",
 		"nodemailer": "^6.4.14",
 		"pg": "8.4.1",
-		"socket.io": "3.0.0"
-	},
-	"devDependencies": {
-		"@babel/core": "7.11.6",
-		"@babel/plugin-proposal-optional-chaining": "7.11.0",
-		"@rollup/plugin-run": "2.0.2",
-		"cross-env": "7.0.2",
 		"rollup": "2.29.0",
-		"rollup-plugin-babel": "4.4.0"
+		"rollup-plugin-babel": "4.4.0",
+		"socket.io": "3.0.0"
 	}
 }
