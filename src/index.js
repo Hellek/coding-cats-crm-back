@@ -10,6 +10,7 @@ import socket from './services/socket-router'
 
 const Koa = new koa()
 const server = http.createServer(Koa.callback())
+const PORT = (global.ENV.ENV === 'production') ? process.env.PORT : global.ENV.PORT
 
 // https://github.com/venables/koa-helmet
 Koa.use(koaHelmet())
@@ -39,6 +40,6 @@ Koa.use(router.allowedMethods())
 
 if (global.ENV.HAS_WEBSOCKET_SERVICE) socket(server)
 
-server.listen(global.ENV.PORT, () => {
-	console.log('Server listening on port: http://localhost:' + global.ENV.PORT)
+server.listen(PORT, () => {
+	console.log('Server listening on port: http://localhost:' + PORT)
 })
