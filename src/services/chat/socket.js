@@ -23,7 +23,7 @@ export default function (io, socket) {
 	})
 
 	socket.on('disconnect', () => {
-		delete chatUsers[socket.user.id]
+		if (socket.user) delete chatUsers[socket.user.id]
 		io.emit('chat/users/update', chatUsers)
 	})
 }
