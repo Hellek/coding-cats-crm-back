@@ -17,7 +17,8 @@ class Users {
 
 			return rows[0].id
 		} catch (error) {
-			throw error
+			console.log(error)
+			throw Error('Ошибка создания пользователя')
 		}
 	}
 
