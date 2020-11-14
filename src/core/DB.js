@@ -1,11 +1,13 @@
 import { Pool } from 'pg'
 
+const dbSettings = JSON.parse(process.env.DATABASE)
+
 const pool = new Pool({
-	host: global.ENV.DATABASE.host,
-	database: global.ENV.DATABASE.name,
-	user: global.ENV.DATABASE.user,
-	password: global.ENV.DATABASE.pass,
-	port: global.ENV.DATABASE.port,
+	host: dbSettings.host,
+	database: dbSettings.name,
+	user: dbSettings.user,
+	password: dbSettings.pass,
+	port: dbSettings.port,
 })
 
 export default {

@@ -1,15 +1,3 @@
 import dotenv from 'dotenv'
 
-const ENV = dotenv.config({ path: `./.env.${process.env.NODE_ENV}` }).parsed
-
-ENV.HAS_AUTH_SERVICE = JSON.parse(ENV.HAS_AUTH_SERVICE)
-ENV.HAS_EMAIL_SERVICE = JSON.parse(ENV.HAS_EMAIL_SERVICE)
-ENV.HAS_WEBSOCKET_SERVICE = JSON.parse(ENV.HAS_WEBSOCKET_SERVICE)
-ENV.ALLOWED_ORIGINS = JSON.parse(ENV.ALLOWED_ORIGINS)
-ENV.DATABASE = JSON.parse(ENV.DATABASE)
-ENV.SESSION_KEYS = JSON.parse(ENV.SESSION_KEYS)
-ENV.SMTP_USERS = JSON.parse(ENV.SMTP_USERS)
-ENV.SMTP_HOSTS = JSON.parse(ENV.SMTP_HOSTS)
-ENV.URLS = JSON.parse(ENV.URLS)
-
-global.ENV = ENV
+dotenv.config({ path: `./.env.${process.env.NODE_ENV}` }).parsed

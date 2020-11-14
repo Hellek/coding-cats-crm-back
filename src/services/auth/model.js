@@ -40,11 +40,12 @@ class Auth {
 
 	async resetPassword({ email }) {
 		const user = await this.getValidUser({ email, password: 'mock password' })
+		const frontendUrl = JSON.parse(process.env.URLS).frontend
 
 		if (user == null) return
 
 		let html = 'Поступил запрос на смену пароля. Если он поступил от вас, то перейдите по <a href="'
-		html += `${global.ENV.URLS.frontend}/?set-new-password=true&hash=${user.password}&email=${email}`
+		html += `${frontendUrl}/?set-new-password=true&hash=${user.password}&email=${email}`
 		html += '">этой ссылке</a> для ввода нового пароля'
 
 		await Email.send({
