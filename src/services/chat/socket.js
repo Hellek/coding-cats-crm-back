@@ -9,13 +9,13 @@ export default function (io, socket) {
 		io.emit('chat/users/update', chatUsers)
 	})
 
-	socket.on('chat', text => {
+	socket.on('chat', ({ text, time }) => {
 		if (!text.trim()) return
 
 		const message = {
 			user: socket.user,
 			text,
-			time: new Date,
+			time,
 		}
 
 		messages.push(message)
