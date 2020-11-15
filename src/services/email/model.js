@@ -48,7 +48,7 @@ class Email {
 	}
 
 	async _getTransport({ smtpUserName = 'bot' } = {}) {
-		let { auth } = this.SMTP_USERS[smtpUserName]
+		let auth = this.SMTP_USERS[smtpUserName]
 
 		if (!this.isProd) {
 			// https://nodemailer.com/about/#example
