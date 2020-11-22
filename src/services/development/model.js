@@ -15,8 +15,16 @@ class Development {
 				"firstName" character varying(50),
 				"lastName" character varying(50),
 				password character varying(80),
-				phone character varying(11),
+				phone character varying(11)
 				PRIMARY KEY(id)
+			);`
+		} else if (tableName === 'roles') {
+			sql = `CREATE TABLE roles (
+				id serial NOT NULL,
+				label character varying(100) NOT NULL,
+				rights json NOT NULL,
+				PRIMARY KEY(id),
+				UNIQUE(label)
 			);`
 		} else {
 			throw Error('SQL для данной таблицы не существует')
