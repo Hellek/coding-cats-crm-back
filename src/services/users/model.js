@@ -11,7 +11,7 @@ class Users {
 			if (exists) throw Error('Пользователь с таким email уже существует')
 
 			const passwordHash = await generateHash(user.password)
-			const text = 'INSERT INTO users(email, "firstName", "lastName", password, phone, active) VALUES($1, $2, $3, $4, $5, $6) RETURNING id'
+			const text = 'INSERT INTO users (email, "firstName", "lastName", password, phone, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id'
 			const values = [user.email, user.firstName, user.lastName, passwordHash, user.phone, user.active]
 			const { rows } = await DB.query(text, values)
 
