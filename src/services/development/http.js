@@ -15,6 +15,17 @@ router.post('/table/:tableName', async ctx => {
 	}
 })
 
+/* Установить значения по умолчанию */
+router.put('/table/:tableName', async ctx => {
+	try {
+		await Development.setDefaults(ctx.params.tableName)
+		ctx.body = `Таблица ${ctx.params.tableName} успешно обновлена`
+	} catch (error) {
+		console.log(error)
+		ctx.throw(400, error)
+	}
+})
+
 /* Удалить таблицу */
 router.delete('/table/:tableName', async ctx => {
 	try {

@@ -31,6 +31,18 @@ class Development {
 	async tableDrop(tableName) {
 		await DB.query(`DROP TABLE ${tableName}`)
 	}
+
+	/**
+	* @summary Подстановка в таблицы значений по умолчанию
+	*/
+	async setDefaults(tableName) {
+		if (tableName === 'roles') {
+			const sql = `INSERT INTO  roles (label, rights) VALUES ('Суперадмин', '{}'), ('Бесправный', '{}');`
+			await DB.query(sql)
+		} else {
+			throw Error('SQL для данной таблицы не существует')
+		}
+	}
 }
 
 export default Development
