@@ -30,12 +30,20 @@ class Auth {
 		return user
 	}
 
-	async setPassword({ email, password, hash }) {
+	async setPassword({ email, password, hash }, ctx) {
 		const user = await this.getValidUser({ email, password })
 
-		if (hash !== user.password) throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
+		// Если не залогинен, то проверяем правильно ли прислали хеш
+		if (!ctx.session.authorized && (hash !== user.password)) throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
 
-		await Users.updatePassword(user.id, password)
+		const isSuperAdmin = (ctx.session.user.id === 1)
+		const isSelfUpdate = (ctx.session.user.id === user.id)
+
+		if (isSuperAdmin || isSelfUpdate) {
+			await Users.updatePassword(user.id, password)
+		} else {
+			throw Error('Недостаточно прав')
+		}
 	}
 
 	async resetPassword({ email }) {

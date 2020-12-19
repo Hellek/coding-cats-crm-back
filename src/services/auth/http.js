@@ -33,7 +33,7 @@ router.post('/password/reset', async ctx => {
 
 router.put('/password', async ctx => {
 	try {
-		await Auth.setPassword(ctx.request.body)
+		await Auth.setPassword(ctx.request.body, ctx)
 		ctx.status = 200
 	} catch (error) {
 		ctx.throw(400, error.message)
