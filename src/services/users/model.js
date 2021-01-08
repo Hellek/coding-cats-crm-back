@@ -12,7 +12,7 @@ class Users {
 
 			const passwordHash = await generateHash(user.password)
 			const text = 'INSERT INTO users (email, "firstName", "lastName", password, phone, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id'
-			const values = [user.email, user.firstName, user.lastName, passwordHash, user.phone, user.active]
+			const values = [user.email.toLowerCase().trim(), user.firstName.trim(), user.lastName.trim(), passwordHash, user.phone, user.active]
 			const { rows } = await DB.query(text, values)
 
 			return rows[0].id
@@ -27,7 +27,7 @@ class Users {
 	*/
 	async update(id, user) {
 		const text = 'UPDATE users SET email=$2, "firstName"=$3, "lastName"=$4, phone=$5, active=$6 WHERE id=$1'
-		const values = [id, user.email, user.firstName, user.lastName, user.phone, user.active]
+		const values = [id, user.email.toLowerCase().trim(), user.firstName.trim(), user.lastName.trim(), user.phone, user.active]
 		return 1 === (await DB.query(text, values)).rowCount
 	}
 
@@ -59,7 +59,7 @@ class Users {
 	*/
 	async getByEmail({ email, getPasswordHash = false }) {
 		const password = getPasswordHash ? ', password' : ''
-		return (await DB.query(`SELECT id, active, email, "firstName", "lastName", phone${password} FROM users WHERE email=$1`, [email])).rows[0]
+		return (await DB.query(`SELECT id, active, email, "firstName", "lastName", phone${password} FROM users WHERE email=$1`, [email.toLowerCase().trim()])).rows[0]
 	}
 
 	/**
