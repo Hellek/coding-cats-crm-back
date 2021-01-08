@@ -1,26 +1,32 @@
-import DB from '../../core/DB'
+import { promisify } from 'util'
+import { resolve as resolvePath, basename as pathBasename } from 'path'
+import { readFile, existsSync as fileExistsSync } from 'fs'
+import { getSubDirectoriesPathList } from '../utils/common'
+import {
+	throw_ER_DUP_ENTRY,
+	throw_ER_ROW_IS_REFERENCED_2,
+} from './model.errors'
+const readFileAsync = promisify(readFile)
+const DB = require('../../core/db-connection')
 
 class Roles {
 	/**
 	* @summary Создание роли
 	*/
 	async create(role) {
-		const text = 'INSERT INTO roles (label, rights) VALUES ($1, $2) RETURNING id'
-		const values = [role.label, role.rights]
-		const { rows } = await DB.query(text, values)
-
-		return rows[0].id
+		try {
+			return (await DB.query('INSERT INTO roles (`label`, `rights`) VALUES (:label, :rights)', role)).insertId
+		} catch (error) {
+			throw_ER_DUP_ENTRY(error)
+			throw error
+		}
 	}
 
 	/**
 	* @summary Обновление названия и прав доступа (не стандартной) роли
 	*/
-	async update(id, user) {
-		const text = 'UPDATE roles SET label=$2, rights=$3 WHERE id=$1'
-		const values = [id, user.label, user.rights]
-		return 1 === (await DB.query(text, values)).rowCount
-
-		/* // Нельзя менять права доступа и название для стандартных ролей
+	async update(role) {
+		// Нельзя менять права доступа и название для стандартных ролей
 		if (role.id === 1 || role.id === 2) {
 			role.label = role.id === 1 ? 'Суперадмин' : 'Бесправный'
 
@@ -36,39 +42,38 @@ class Roles {
 		} catch (error) {
 			throw_ER_DUP_ENTRY(error)
 			throw error
-		} */
+		}
 	}
 
 	/**
 	* @summary Удаление роли
 	*/
-	/* async remove(id) {
+	async remove(id) {
 		try {
 			return 1 === (await DB.query('DELETE FROM roles WHERE id=:id', { id })).affectedRows
 		} catch (error) {
 			throw_ER_ROW_IS_REFERENCED_2(error)
 			throw error
 		}
-	} */
+	}
 
 	/**
-	* @summary Получение списка ролей
+	* @summary Получение списка ролей с данными
 	*/
 	async getList() {
-		const { rows } = await DB.query('SELECT id, label, rights FROM roles')
-		/*
+		const roles = await DB.cats.query('SELECT id, label, rights FROM roles')
+
 		roles.forEach(role => {
 			role.rights = JSON.parse(role.rights)
 		})
-		*/
 
-		return rows
+		return roles
 	}
 
 	/**
 	* @summary Получение схемы всех методов учавствующих в правах доступа
 	*/
-	/* async getRightsSchema() {
+	async getRightsSchema() {
 		const servicesPathList = await getSubDirectoriesPathList(resolvePath('./services'))
 		const servicesWithModelPathList = servicesPathList.filter(servicePath => fileExistsSync(servicePath + '/model.js'))
 		let rightsSchema = {}
@@ -101,7 +106,7 @@ class Roles {
 		})
 
 		return rightsSchema
-	} */
+	}
 }
 
 export default Roles
