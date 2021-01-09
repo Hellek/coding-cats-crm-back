@@ -4,6 +4,11 @@ import AuthModel from './model'
 const router = new koaRouter()
 const Auth = new AuthModel
 
+router.get('/ping', async ctx => {
+	if (ctx.session.authorized) ctx.body = ctx.session.user
+	else ctx.throw(401)
+})
+
 router.post('/login', async ctx => {
 	try {
 		if (!ctx.session.authorized) {
