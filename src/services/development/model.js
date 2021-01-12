@@ -6,6 +6,7 @@ class Development {
 	*/
 	async tableCreate(tableName) {
 		let sql = ''
+		let message = null
 
 		if (tableName === 'users') {
 			sql = `CREATE TABLE users (
@@ -26,18 +27,50 @@ class Development {
 				PRIMARY KEY(id),
 				UNIQUE(label)
 			);`
+		} else if (tableName === 'ideas') {
+			const tableIdeas = `CREATE TABLE ideas (
+				id serial NOT NULL,
+				userId integer NOT NULL,
+				ticker character varying(20) NOT NULL,
+				active boolean NOT NULL DEFAULT TRUE,
+ 				created timestamp with time zone DEFAULT now(),
+				PRIMARY KEY(id)
+			);`
+
+			const tableIdeasComments = `CREATE TABLE ideasComments (
+				id serial NOT NULL,
+				ideaId integer NOT NULL,
+				text character varying(5000) NOT NULL,
+				posted timestamp with time zone DEFAULT now(),
+				PRIMARY KEY(id),
+				FOREIGN KEY (ideaId) REFERENCES ideas (id) ON DELETE CASCADE
+			);`
+
+			sql = `${tableIdeas};${tableIdeasComments}`
+			message = 'Таблицы ideas, ideasComments успешно созданы'
 		} else {
 			throw Error('SQL для данной таблицы не существует')
 		}
 
 		await DB.query(sql)
+
+		return message || `Таблица ${tableName} успешно создана`
 	}
 
 	/**
 	* @summary Удаление таблицы
 	*/
 	async tableDrop(tableName) {
-		await DB.query(`DROP TABLE ${tableName}`)
+		let message = null
+
+		if (tableName === 'ideas') {
+			await DB.query(`DROP TABLE ideasComments, ideas`)
+			message = 'Таблицы ideas, ideasComments успешно удалены'
+		} else {
+			await DB.query(`DROP TABLE ${tableName}`)
+		}
+
+		return message || `Таблица ${tableName} успешно удалена`
 	}
 
 	/**
