@@ -27,6 +27,11 @@ class Development {
 				PRIMARY KEY(id),
 				UNIQUE(label)
 			);`
+		} else if (tableName === 'instruments') {
+			sql = `CREATE TABLE instruments (
+				ticker character varying(30) NOT NULL,
+				UNIQUE(ticker)
+			);`
 		} else if (tableName === 'ideas') {
 			const tableIdeas = `CREATE TABLE ideas (
 				id serial NOT NULL,
