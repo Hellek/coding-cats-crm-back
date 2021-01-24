@@ -1,3 +1,4 @@
+import jsonwebtoken from 'jsonwebtoken'
 import { isEmailValid, compareHash } from '../utils/common'
 import UsersModel from '../users/model'
 import EmailModel from '../email/model'
@@ -12,42 +13,33 @@ class Auth {
 		if (!await isEmailValid(email)) throw Error('Не валидный емейл, проверьте написание')
 	}
 
-	async getValidUser({ email, password }) {
+	async getValidUser({ email, password, getPasswordHash = false }) {
 		await this.validateAuthData({ email, password })
-		const user = await Users.getByEmail({ email, getPasswordHash: true })
+		const user = await Users.getByEmail({ email, getPasswordHash })
 		if (user != null && !user.active) throw Error('Доступ к системе запрещён')
 		return user
 	}
 
 	async authentication({ email, password }) {
-		const user = await this.getValidUser({ email, password })
+		const user = await this.getValidUser({ email, password, getPasswordHash: true })
 		if (user == null || !await compareHash(password, user.password)) throw Error('Неверная пара логин-пароль')
-
-		// Удаляем пароль и не нужные данные
-		delete user.password
-		delete user.active
-
 		return user
 	}
 
-	async setPassword({ email, password, hash }, ctx) {
-		const user = await this.getValidUser({ email, password })
+	async setPassword({ email, password, hash }) {
+		const user = await this.getValidUser({ email, password, getPasswordHash: true })
 
-		// Если не залогинен, то проверяем правильно ли прислали хеш
-		if (!ctx.session.authorized && (hash !== user.password)) throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
+		if (hash === user.password) await Users.updatePassword(user.id, password)
 
-		const isSuperAdmin = (ctx.session.user.id === 1)
-		const isSelfUpdate = (ctx.session.user.id === user.id)
+		throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
+	}
 
-		if (isSuperAdmin || isSelfUpdate) {
-			await Users.updatePassword(user.id, password)
-		} else {
-			throw Error('Недостаточно прав')
-		}
+	async getValidUserWithPasswordMock({ email, getPasswordHash = false }) {
+		return await this.getValidUser({ email, getPasswordHash, password: 'password mock' })
 	}
 
 	async resetPassword({ email }) {
-		const user = await this.getValidUser({ email, password: 'mock password' })
+		const user = await this.getValidUserWithPasswordMock({ email, getPasswordHash: true })
 		const frontendUrl = JSON.parse(process.env.URLS).frontend
 
 		if (user == null) return
@@ -60,6 +52,20 @@ class Auth {
 			to: email,
 			subject: 'Запрос на смену пароля',
 			html,
+		})
+	}
+
+	getJwtToken({ user }) {
+		return new Promise((resolve, reject) => {
+			jsonwebtoken.sign(user, JSON.parse(process.env.SECRET_KEYS).jwt, {
+					algorithm: 'HS512',
+					expiresIn: '48h',
+				},
+				function (error, token) {
+					if (error) reject(error)
+					else resolve(token)
+				}
+			)
 		})
 	}
 }

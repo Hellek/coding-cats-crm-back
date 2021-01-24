@@ -4,27 +4,24 @@ import AuthModel from './model'
 const router = new koaRouter()
 const Auth = new AuthModel
 
-router.get('/ping', async ctx => {
-	if (ctx.session.authorized) ctx.body = ctx.session.user
-	else ctx.throw(401)
-})
-
-router.post('/login', async ctx => {
+router.post('/authenticate', async ctx => {
 	try {
-		if (!ctx.session.authorized) {
-			ctx.session.user = await Auth.authentication(ctx.request.body)
-			ctx.session.authorized = true
-		}
-
-		ctx.body = ctx.session.user
+		const user = await Auth.authentication(ctx.request.body)
+		const token = await Auth.getJwtToken({ user })
+		ctx.body = token
 	} catch (error) {
 		ctx.throw(400, error.message)
 	}
 })
 
-router.post('/logout', async ctx => {
-	ctx.session = null
-	ctx.status = 200
+router.post('/refresh', async ctx => {
+	try {
+		const user = await Auth.getValidUserWithPasswordMock({ email: ctx.state.user.email })
+		const token = await Auth.getJwtToken({ user })
+		ctx.body = token
+	} catch (error) {
+		ctx.throw(400, error.message)
+	}
 })
 
 router.post('/password/reset', async ctx => {
@@ -38,7 +35,7 @@ router.post('/password/reset', async ctx => {
 
 router.put('/password', async ctx => {
 	try {
-		await Auth.setPassword(ctx.request.body, ctx)
+		await Auth.setPassword(ctx.request.body)
 		ctx.status = 200
 	} catch (error) {
 		ctx.throw(400, error.message)

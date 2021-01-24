@@ -38,6 +38,16 @@ router.post('/', async ctx => {
 	}
 })
 
+/* Обновить пароль, если уже авторизован */
+router.put('/password', async ctx => {
+	try {
+		await Users.setPassword({ ...ctx.request.body, user: ctx.state.user})
+		ctx.status = 200
+	} catch (error) {
+		ctx.throw(400, error.message)
+	}
+})
+
 /* Обновить пользователя */
 router.put('/:id', async ctx => {
 	try {

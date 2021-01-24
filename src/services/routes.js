@@ -6,7 +6,7 @@ import roles from './roles/http'
 import development from './development/http'
 
 function setServiceRoutes(router) {
-	if (process.env.HAS_AUTH_SERVICE === 'true') router.use('/auth', auth)
+	router.use('/auth', auth)
 	router.use('/ideas', ideas)
 	router.use('/instruments', instruments)
 	router.use('/users', users)

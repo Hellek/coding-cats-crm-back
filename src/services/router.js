@@ -1,4 +1,5 @@
 import koaRouter from 'koa-router'
+import koaJwt from 'koa-jwt'
 import setServiceRoutes from './routes'
 
 const router = new koaRouter()
@@ -9,9 +10,9 @@ router.get('/favicon.ico', async ctx => ctx.response.status = 204)
 router.use(async function (ctx, next) {
 	try {
 		await next()
-	} catch (err) {
-		ctx.status = err.statusCode || err.status || 500
-		ctx.body = err.message || 'Some error goes here'
+	} catch (error) {
+		ctx.status = error.statusCode || error.status || 500
+		ctx.body = error.message || 'Ошибка в работе сервера'
 	}
 })
 
@@ -19,23 +20,16 @@ router.use(async function (ctx, next) {
 router.all('/:service?/:method?', async (ctx, next) => {
 	if (ctx.params.service === undefined) {
 		ctx.status = 400
-		ctx.message = 'Service not specified'
+		ctx.message = 'Укажите "/${service}" в запрашиваемом маршруте'
 	} else {
 		await next()
 	}
 })
 
 // Auth check
-if (process.env.HAS_AUTH_SERVICE === 'true') {
-	router.all(/.*/, async (ctx, next) => {
-		if (ctx.session.authorized || ctx.url.split('/')[1] === 'auth') {
-			await next()
-			return
-		}
-
-		ctx.throw(401, 'Вы не авторизованы')
-	})
-}
+// TODO проверить верификацию
+router.use(koaJwt({ secret: JSON.parse(process.env.SECRET_KEYS).jwt })
+	.unless({ path: [/^\/auth\/(authenticate|password)(\/reset)?/] }))
 
 setServiceRoutes(router)
 

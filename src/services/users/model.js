@@ -81,6 +81,21 @@ class Users {
 
 		return rows
 	}
+
+	/**
+	* @summary Обновление пароля если мы авторизованы
+	*/
+	async setPassword({ email, password, user }) {
+		const userUpdateCandidate = await this.getByEmail({ email })
+		const isRequestorInitialUser = (user.id === 1)
+		const isRequestorSelfUpdate = (user.id === userUpdateCandidate.id)
+
+		if (isRequestorInitialUser || isRequestorSelfUpdate) {
+			await this.updatePassword(userUpdateCandidate.id, password)
+		} else {
+			throw Error('Недостаточно прав')
+		}
+	}
 }
 
 export default Users
