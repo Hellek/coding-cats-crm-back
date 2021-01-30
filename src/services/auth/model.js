@@ -23,6 +23,9 @@ class Auth {
 	async authentication({ email, password }) {
 		const user = await this.getValidUser({ email, password, getPasswordHash: true })
 		if (user == null || !await compareHash(password, user.password)) throw Error('Неверная пара логин-пароль')
+
+		delete user.password
+
 		return user
 	}
 
