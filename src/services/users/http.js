@@ -16,7 +16,10 @@ router.get('/', async ctx => {
 /* Получить пользователя */
 router.get('/:id', async ctx => {
 	try {
-		const user = await Users.getById(ctx.params.id)
+		const user = await Users.getById({
+			id: ctx.params.id,
+			ctx,
+		})
 
 		if (user) {
 			ctx.body = user

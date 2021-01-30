@@ -80,8 +80,13 @@ class Users {
 	/**
 	* @summary Запрос данных по пользователю по id (кроме пароля)
 	*/
-	async getById(id) {
+	async getById({ id, ctx }) {
 		const user = (await DB.query('SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", created, phone FROM users WHERE id=$1', [id])).rows[0]
+
+		if (ctx.state.user.id !== id) {
+			user.TIRealToken = null
+			user.TISandboxToken = null
+		}
 
 		// Если есть токены ТИ, дешифруем
 		if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
