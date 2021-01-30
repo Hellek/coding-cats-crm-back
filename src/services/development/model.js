@@ -39,6 +39,7 @@ class Development {
 				ticker character varying(20) NOT NULL,
 				active boolean NOT NULL DEFAULT TRUE,
  				created timestamp with time zone DEFAULT now(),
+				FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
 				PRIMARY KEY(id)
 			);`
 
@@ -47,8 +48,8 @@ class Development {
 				ideaId integer NOT NULL,
 				text character varying(5000) NOT NULL,
 				posted timestamp with time zone DEFAULT now(),
-				PRIMARY KEY(id),
-				FOREIGN KEY (ideaId) REFERENCES ideas (id) ON DELETE CASCADE
+				FOREIGN KEY (ideaId) REFERENCES ideas (id) ON DELETE CASCADE,
+				PRIMARY KEY(id)
 			);`
 
 			sql = `${tableIdeas};${tableIdeasComments}`
