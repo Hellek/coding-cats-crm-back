@@ -16,9 +16,9 @@ router.get('/', async ctx => {
 /* Получить пользователя */
 router.get('/:id', async ctx => {
 	try {
-		const user = await Users.getById({
+		const user = await Users.getBy('id', {
 			id: ctx.params.id,
-			ctx,
+			isSelfRequest: ctx.params.id === ctx.state.user.id,
 		})
 
 		if (user) {

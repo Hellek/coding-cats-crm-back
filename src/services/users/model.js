@@ -61,33 +61,49 @@ class Users {
 	}
 
 	/**
-	* @summary Запрос данных по пользователю по email (кроме пароля)
+	* @summary Запрос данных по пользователю
 	*/
-	async getByEmail({ email, getPasswordHash = false }) {
-		const password = getPasswordHash ? ', password' : ''
-		const user = (await DB.query(`SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", created, phone${password} FROM users WHERE email=$1`, [email.toLowerCase().trim()])).rows[0]
+	async getBy(by, {
+		id = null,
+		email = null,
+		getPasswordHash = false,
+		isSelfRequest = false,
+	}) {
+		// Проверка входного by
+		if (!['id', 'email'].includes(by)) throw Error(`Поиск по ${by} отсутствует. Допустимо ["id", "email"]`)
 
-		// Если есть токены ТИ, дешифруем
-		if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
-		if (user?.TISandboxToken) user.TISandboxToken = cryptrTokens.decrypt(user.TISandboxToken)
+		// Запрашивать ли пароль?
+		const getPasswordQuery = getPasswordHash ? ', password' : ''
 
-		return user
-	}
+		const text = `SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", created, phone${getPasswordQuery} FROM users WHERE ${by}=$1`
+		let values = null
 
-	/**
-	* @summary Запрос данных по пользователю по id (кроме пароля)
-	*/
-	async getById({ id, ctx }) {
-		const user = (await DB.query('SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", created, phone FROM users WHERE id=$1', [id])).rows[0]
-
-		if (ctx.state.user.id !== id) {
-			user.TIRealToken = null
-			user.TISandboxToken = null
+		switch (by) {
+		case 'id': values = [id]
+			break
+		case 'email': values = [email.toLowerCase().trim()]
+			break
+		default: values = []
+			break
 		}
 
-		// Если есть токены ТИ, дешифруем
-		if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
-		if (user?.TISandboxToken) user.TISandboxToken = cryptrTokens.decrypt(user.TISandboxToken)
+		// Запрашиваем данные
+		const { rows } = await DB.query(text, values)
+		// Пользователь не найден
+		if (rows.length === 0) return null
+		// Ппроверяем работаем ли с одной сущностью
+		if (rows.length > 1) throw Error('По запросу найдено несколько сущностей')
+
+		const user = rows[0]
+
+		if (isSelfRequest) {
+			// Если есть токены ТИ, дешифруем
+			if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
+			if (user?.TISandboxToken) user.TISandboxToken = cryptrTokens.decrypt(user.TISandboxToken)
+		} else {
+			delete user.TIRealToken
+			delete user.TISandboxToken
+		}
 
 		return user
 	}
@@ -109,7 +125,7 @@ class Users {
 	* @summary Обновление пароля если мы авторизованы
 	*/
 	async setPassword({ email, password, user }) {
-		const userUpdateCandidate = await this.getByEmail({ email })
+		const userUpdateCandidate = await this.getBy('email', { email })
 		const isRequestorInitialUser = (user.id === 1)
 		const isRequestorSelfUpdate = (user.id === userUpdateCandidate.id)
 
