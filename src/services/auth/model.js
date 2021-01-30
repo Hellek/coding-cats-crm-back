@@ -7,22 +7,28 @@ const Users = new UsersModel
 const Email = new EmailModel
 
 class Auth {
-	async validateAuthData({ email, password }) {
+	async validateAuthData({ email, password, isPasswordRequired = true }) {
 		if (!email) throw Error('Не указан email')
-		if (!password) throw Error('Не указан пароль')
+		if (isPasswordRequired && !password) throw Error('Не указан пароль')
 		if (!await isEmailValid(email)) throw Error('Не валидный емейл, проверьте написание')
 	}
 
-	async getValidUser({ email, password, getPasswordHash = false }) {
-		await this.validateAuthData({ email, password })
-		const user = await Users.getByEmail({ email, getPasswordHash })
-		if (user != null && !user.active) throw Error('Доступ к системе запрещён')
+	async getValidUser({
+		email,
+		password,
+		getPasswordHash = false,
+		isPasswordRequired = true,
+		isSelfRequest = false,
+	}) {
+		await this.validateAuthData({ email, password, isPasswordRequired })
+		const user = await Users.getBy('email', { email, getPasswordHash, isSelfRequest })
+		if (!user || !user.active) throw Error('Доступ к системе запрещён')
 		return user
 	}
 
 	async authentication({ email, password }) {
-		const user = await this.getValidUser({ email, password, getPasswordHash: true })
-		if (user == null || !await compareHash(password, user.password)) throw Error('Неверная пара логин-пароль')
+		const user = await this.getValidUser({ email, password, getPasswordHash: true, isSelfRequest: true })
+		if (!user || !await compareHash(password, user.password)) throw Error('Неверная пара логин-пароль')
 
 		delete user.password
 
@@ -37,15 +43,15 @@ class Auth {
 		throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
 	}
 
-	async getValidUserWithPasswordMock({ email, getPasswordHash = false }) {
-		return await this.getValidUser({ email, getPasswordHash, password: 'password mock' })
+	async getValidUserWithoutPassword({ email, getPasswordHash = false }) {
+		return await this.getValidUser({ email, getPasswordHash, isPasswordRequired: false })
 	}
 
 	async resetPassword({ email }) {
-		const user = await this.getValidUserWithPasswordMock({ email, getPasswordHash: true })
+		const user = await this.getValidUserWithoutPassword({ email, getPasswordHash: true })
 		const frontendUrl = JSON.parse(process.env.URLS).frontend
 
-		if (user == null) return
+		if (!user) return
 
 		let html = 'Поступил запрос на смену пароля. Если он поступил от вас, то перейдите по <a href="'
 		html += `${frontendUrl}/?set-new-password=true&hash=${user.password}&email=${email}`
