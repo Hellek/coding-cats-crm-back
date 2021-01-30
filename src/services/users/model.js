@@ -122,6 +122,13 @@ class Users {
 			throw Error('Недостаточно прав')
 		}
 	}
+
+	/**
+	* @summary Проверка существует ли пользователь
+	*/
+	async isExists(columnName, value) {
+		return (await DB.query(`SELECT EXISTS(SELECT 1 from users WHERE ${columnName}=$1)`, [value])).rows[0].exists
+	}
 }
 
 export default Users
