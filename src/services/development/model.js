@@ -17,8 +17,8 @@ class Development {
 				"lastName" character varying(50),
 				password character varying(80),
 				phone character varying(11),
-				"TIRealToken" character varying(220),
-				"TISandboxToken" character varying(220),
+				"TIRealToken" character varying(800),
+				"TISandboxToken" character varying(800),
 				PRIMARY KEY(id)
 			);`
 		} else if (tableName === 'roles') {
