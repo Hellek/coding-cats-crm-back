@@ -17,6 +17,7 @@ class Development {
 				"lastName" character varying(50),
 				password character varying(80),
 				phone character varying(11),
+				created timestamp with time zone DEFAULT now(),
 				"TIRealToken" character varying(800),
 				"TISandboxToken" character varying(800),
 				PRIMARY KEY(id)

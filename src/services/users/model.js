@@ -15,11 +15,11 @@ class Users {
 			if (exists) throw Error('Пользователь с таким email уже существует')
 
 			const passwordHash = await generateHash(user.password)
-			const text = 'INSERT INTO users (email, "firstName", "lastName", password, phone, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id'
+			const text = 'INSERT INTO users (email, "firstName", "lastName", password, phone, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *'
 			const values = [user.email.toLowerCase().trim(), user.firstName.trim(), user.lastName.trim(), passwordHash, user.phone, user.active]
 			const { rows } = await DB.query(text, values)
 
-			return rows[0].id
+			return rows[0]
 		} catch (error) {
 			console.log(error)
 			throw Error('Ошибка создания пользователя')
@@ -68,7 +68,7 @@ class Users {
 	*/
 	async getByEmail({ email, getPasswordHash = false }) {
 		const password = getPasswordHash ? ', password' : ''
-		const user = (await DB.query(`SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", phone${password} FROM users WHERE email=$1`, [email.toLowerCase().trim()])).rows[0]
+		const user = (await DB.query(`SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", created, phone${password} FROM users WHERE email=$1`, [email.toLowerCase().trim()])).rows[0]
 
 		// Если есть токены ТИ, дешифруем
 		if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
@@ -81,7 +81,7 @@ class Users {
 	* @summary Запрос данных по пользователю по id (кроме пароля)
 	*/
 	async getById(id) {
-		const user = (await DB.query('SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", phone FROM users WHERE id=$1', [id])).rows[0]
+		const user = (await DB.query('SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", created, phone FROM users WHERE id=$1', [id])).rows[0]
 
 		// Если есть токены ТИ, дешифруем
 		if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
