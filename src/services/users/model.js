@@ -10,20 +10,17 @@ class Users {
 	* @summary Создание нового пользователя
 	*/
 	async create(user) {
-		try {
-			const exists = await this.getByEmail(user)
-			if (exists) throw Error('Пользователь с таким email уже существует')
+		user.email = user.email.toLowerCase().trim()
 
-			const passwordHash = await generateHash(user.password)
-			const text = 'INSERT INTO users (email, "firstName", "lastName", password, phone, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *'
-			const values = [user.email.toLowerCase().trim(), user.firstName.trim(), user.lastName.trim(), passwordHash, user.phone, user.active]
-			const { rows } = await DB.query(text, values)
+		const exists = await this.isExists('email', user.email)
+		if (exists) throw Error('Пользователь с таким email уже существует')
 
-			return rows[0]
-		} catch (error) {
-			console.log(error)
-			throw Error('Ошибка создания пользователя')
-		}
+		const passwordHash = await generateHash(user.password)
+		const text = 'INSERT INTO users (email, "firstName", "lastName", password, phone, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *'
+		const values = [user.email, user.firstName.trim(), user.lastName.trim(), passwordHash, user.phone, user.active]
+		const { rows } = await DB.query(text, values)
+
+		return rows[0]
 	}
 
 	/**
