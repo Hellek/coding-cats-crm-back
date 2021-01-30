@@ -1,5 +1,8 @@
-import { generateHash } from '../utils/common'
 import DB from '../../core/DB'
+
+import {
+	generateHash,
+} from '../utils/common'
 
 class Users {
 	/**
@@ -32,7 +35,7 @@ class Users {
 	}
 
 	/**
-	* @summary Обновление пароля пользователя
+	* @summary Сырое sql-обновление пароля пользователя без валидации
 	*/
 	async updatePassword(id, password) {
 		const passwordHash = await generateHash(password)
