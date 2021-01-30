@@ -2,6 +2,7 @@ import DB from '../../core/DB'
 
 import {
 	generateHash,
+	cryptrTokens,
 } from '../utils/common'
 
 class Users {
@@ -29,8 +30,13 @@ class Users {
 	* @summary Обновление данных пользователя (кроме пароля)
 	*/
 	async update(id, user) {
-		const text = 'UPDATE users SET email=$2, "firstName"=$3, "lastName"=$4, phone=$5, active=$6 WHERE id=$1'
-		const values = [id, user.email.toLowerCase().trim(), user.firstName.trim(), user.lastName.trim(), user.phone, user.active]
+		const text = 'UPDATE users SET email=$2, "firstName"=$3, "lastName"=$4, phone=$5, active=$6, "TIRealToken"=$7, "TISandboxToken"=$8 WHERE id=$1'
+
+		// Если есть токены ТИ, шифруем
+		if (user.TIRealToken) user.TIRealToken = cryptrTokens.encrypt(user.TIRealToken)
+		if (user.TISandboxToken) user.TISandboxToken = cryptrTokens.encrypt(user.TISandboxToken)
+
+		const values = [id, user.email.toLowerCase().trim(), user.firstName.trim(), user.lastName.trim(), user.phone, user.active, user.TIRealToken, user.TISandboxToken]
 		return 1 === (await DB.query(text, values)).rowCount
 	}
 
@@ -62,14 +68,26 @@ class Users {
 	*/
 	async getByEmail({ email, getPasswordHash = false }) {
 		const password = getPasswordHash ? ', password' : ''
-		return (await DB.query(`SELECT id, active, email, "firstName", "lastName", phone${password} FROM users WHERE email=$1`, [email.toLowerCase().trim()])).rows[0]
+		const user = (await DB.query(`SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", phone${password} FROM users WHERE email=$1`, [email.toLowerCase().trim()])).rows[0]
+
+		// Если есть токены ТИ, дешифруем
+		if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
+		if (user?.TISandboxToken) user.TISandboxToken = cryptrTokens.decrypt(user.TISandboxToken)
+
+		return user
 	}
 
 	/**
 	* @summary Запрос данных по пользователю по id (кроме пароля)
 	*/
 	async getById(id) {
-		return (await DB.query('SELECT id, active, email, "firstName", "lastName", phone FROM users WHERE id=$1', [id])).rows[0]
+		const user = (await DB.query('SELECT id, active, email, "firstName", "lastName", "TIRealToken", "TISandboxToken", phone FROM users WHERE id=$1', [id])).rows[0]
+
+		// Если есть токены ТИ, дешифруем
+		if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
+		if (user?.TISandboxToken) user.TISandboxToken = cryptrTokens.decrypt(user.TISandboxToken)
+
+		return user
 	}
 
 	/**
