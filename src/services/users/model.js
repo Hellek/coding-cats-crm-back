@@ -124,13 +124,13 @@ class Users {
 	/**
 	* @summary Обновление пароля если мы авторизованы
 	*/
-	async setPassword({ email, password, user }) {
-		const userUpdateCandidate = await this.getBy('email', { email })
-		const isRequestorInitialUser = (user.id === 1)
-		const isRequestorSelfUpdate = (user.id === userUpdateCandidate.id)
+	async setPassword({ email, password, requestor }) {
+		const user = await this.getBy('email', { email })
+		const isInitialUser = (requestor.id === 1)
+		const isSelfRequest = (requestor.id === user.id)
 
-		if (isRequestorInitialUser || isRequestorSelfUpdate) {
-			await this.updatePassword(userUpdateCandidate.id, password)
+		if (isInitialUser || isSelfRequest) {
+			await this.updatePassword(user.id, password)
 		} else {
 			throw Error('Недостаточно прав')
 		}
