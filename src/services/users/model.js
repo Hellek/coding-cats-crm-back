@@ -140,6 +140,7 @@ class Users {
 	* @summary Проверка существует ли пользователь
 	*/
 	async isExists(columnName, value) {
+		if (!['id', 'email', 'phone'].includes(columnName)) throw Error(`Поиск по ${columnName} отсутствует. Допустимо ["id", "email", "phone"]`)
 		return (await DB.query(`SELECT EXISTS(SELECT 1 from users WHERE ${columnName}=$1)`, [value])).rows[0].exists
 	}
 }
