@@ -38,7 +38,7 @@ class Auth {
 	async setPassword({ email, password, hash }) {
 		const user = await this.getValidUser({ email, password, getPasswordHash: true })
 
-		if (hash === user.password) await Users.updatePassword(user.id, password)
+		if (hash === user.password) await Users.directPasswordUpdate(user.id, password)
 
 		throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
 	}

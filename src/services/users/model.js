@@ -40,7 +40,7 @@ class Users {
 	/**
 	* @summary Сырое sql-обновление пароля пользователя без валидации
 	*/
-	async updatePassword(id, password) {
+	async directPasswordUpdate(id, password) {
 		const passwordHash = await generateHash(password)
 		const text = 'UPDATE users SET password=$2 WHERE id=$1'
 		const values = [id, passwordHash]
@@ -130,7 +130,7 @@ class Users {
 		const isSelfRequest = (requestor.id === user.id)
 
 		if (isInitialUser || isSelfRequest) {
-			await this.updatePassword(user.id, password)
+			await this.directPasswordUpdate(user.id, password)
 		} else {
 			throw Error('Недостаточно прав')
 		}
