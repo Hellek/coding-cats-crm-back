@@ -18,16 +18,16 @@ class Auth {
 		password,
 		getPasswordHash = false,
 		isPasswordRequired = true,
-		isSelfRequest = false,
+		dangerouslyUnauthorizedGet = false,
 	}) {
 		await this.validateAuthData({ email, password, isPasswordRequired })
-		const user = await Users.getBy('email', { email, getPasswordHash, isSelfRequest })
+		const user = await Users.getBy('email', { email, getPasswordHash, dangerouslyUnauthorizedGet })
 		if (!user || !user.active) throw Error('Доступ к системе запрещён')
 		return user
 	}
 
 	async authentication({ email, password }) {
-		const user = await this.getValidUser({ email, password, getPasswordHash: true, isSelfRequest: true })
+		const user = await this.getValidUser({ email, password, getPasswordHash: true, dangerouslyUnauthorizedGet: true })
 		if (!user || !await compareHash(password, user.password)) throw Error('Неверная пара логин-пароль')
 
 		delete user.password
@@ -36,19 +36,19 @@ class Auth {
 	}
 
 	async setPassword({ email, password, hash }) {
-		const user = await this.getValidUser({ email, password, getPasswordHash: true })
+		const user = await this.getValidUser({ email, password, getPasswordHash: true, dangerouslyUnauthorizedGet: true })
 
-		if (hash === user.password) await Users.directPasswordUpdate(user.id, password)
+		if (hash !== user.password) throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
 
-		throw Error('Хеш пароля устарел. Запросите сброс пароля заново')
+		await Users.directPasswordUpdate(user.id, password)
 	}
 
-	async getValidUserWithoutPassword({ email, getPasswordHash = false }) {
-		return await this.getValidUser({ email, getPasswordHash, isPasswordRequired: false })
+	async getValidUserWithoutPassword({ email, getPasswordHash = false, dangerouslyUnauthorizedGet = false }) {
+		return await this.getValidUser({ email, getPasswordHash, isPasswordRequired: false, dangerouslyUnauthorizedGet })
 	}
 
 	async resetPassword({ email }) {
-		const user = await this.getValidUserWithoutPassword({ email, getPasswordHash: true })
+		const user = await this.getValidUserWithoutPassword({ email, getPasswordHash: true, dangerouslyUnauthorizedGet: true })
 		const frontendUrl = JSON.parse(process.env.URLS).frontend
 
 		if (!user) return

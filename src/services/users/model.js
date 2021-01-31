@@ -9,7 +9,13 @@ class Users {
 	/**
 	* @summary Создание нового пользователя
 	*/
-	async create(user) {
+	async create({
+		user,
+		requestor,
+	}) {
+		// Сейчас только isInitialUser
+		if (requestor.id !== 1) throw Error(403)
+
 		user.email = user.email.toLowerCase().trim()
 
 		const exists = await this.isExists('email', user.email)
@@ -26,7 +32,16 @@ class Users {
 	/**
 	* @summary Обновление данных пользователя (кроме пароля)
 	*/
-	async update(id, user) {
+	async update({
+		id,
+		user,
+		requestor,
+	}) {
+		const isInitialUser = (requestor.id === 1)
+		const isSelfRequest = (requestor.id === user.id)
+
+		if (!isInitialUser && !isSelfRequest) throw Error(403)
+
 		const text = 'UPDATE users SET email=$2, "firstName"=$3, "lastName"=$4, phone=$5, active=$6, "TIRealToken"=$7, "TISandboxToken"=$8 WHERE id=$1'
 
 		// Если есть токены ТИ, шифруем
@@ -56,7 +71,10 @@ class Users {
 	/**
 	* @summary Удаление пользователя
 	*/
-	async remove(id) {
+	async remove({ id, requestor }) {
+		// Только isInitialUser
+		if (requestor.id !== 1) throw Error(403)
+
 		return 0 < (await DB.query('DELETE FROM users WHERE id=$1', [id])).rowCount
 	}
 
@@ -67,8 +85,14 @@ class Users {
 		id = null,
 		email = null,
 		getPasswordHash = false,
-		isSelfRequest = false,
+		dangerouslyUnauthorizedGet = false,
+		requestor = {},
 	}) {
+		const isInitialUser = (requestor.id === 1)
+		const isSelfRequest = (requestor.id === +id)
+
+		if (!isInitialUser && !isSelfRequest && !dangerouslyUnauthorizedGet) throw Error(403)
+
 		// Проверка входного by
 		if (!['id', 'email'].includes(by)) throw Error(`Поиск по ${by} отсутствует. Допустимо ["id", "email"]`)
 
@@ -96,7 +120,7 @@ class Users {
 
 		const user = rows[0]
 
-		if (isSelfRequest) {
+		if (isSelfRequest || dangerouslyUnauthorizedGet) {
 			// Если есть токены ТИ, дешифруем
 			if (user?.TIRealToken) user.TIRealToken = cryptrTokens.decrypt(user.TIRealToken)
 			if (user?.TISandboxToken) user.TISandboxToken = cryptrTokens.decrypt(user.TISandboxToken)
@@ -109,13 +133,21 @@ class Users {
 	}
 
 	/**
-	* @summary Получение списка пользователей со всеми атрибутами (кроме пароля; применяются параметры фильтрации)
+	* @summary Получение списка пользователей
 	*/
-	async getList(filters = {
-		limit: 20,
+	async getList({
+		filters,
+		requestor,
 	}) {
+		const localFilters = {
+			limit: 20,
+			...filters,
+		}
+
+		if (requestor.id !== 1) throw Error(403)
+
 		const { rows } = await DB.query('SELECT id, active, email, "firstName", "lastName", phone FROM users LIMIT $1', [
-			filters.limit,
+			localFilters.limit,
 		])
 
 		return rows
@@ -124,16 +156,14 @@ class Users {
 	/**
 	* @summary Обновление пароля если мы авторизованы
 	*/
-	async setPassword({ email, password, requestor }) {
-		const user = await this.getBy('email', { email })
+	async setPassword({ id, password, requestor }) {
+		const user = await this.getBy('id', { id, requestor })
 		const isInitialUser = (requestor.id === 1)
 		const isSelfRequest = (requestor.id === user.id)
 
-		if (isInitialUser || isSelfRequest) {
-			await this.directPasswordUpdate(user.id, password)
-		} else {
-			throw Error('Недостаточно прав')
-		}
+		if (!isInitialUser && !isSelfRequest) throw Error(403)
+
+		await this.directPasswordUpdate(user.id, password)
 	}
 
 	/**

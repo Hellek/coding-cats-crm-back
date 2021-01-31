@@ -12,7 +12,10 @@ const httpErrorHandler = function (ctx, error) {
 /* Получить список пользователей */
 router.get('/', async ctx => {
 	try {
-		ctx.body = await Users.getList()
+		ctx.body = await Users.getList({
+			filters: ctx.query,
+			requestor: ctx.state.user,
+		})
 	} catch (error) {
 		httpErrorHandler(ctx, error)
 	}
@@ -23,7 +26,7 @@ router.get('/:id', async ctx => {
 	try {
 		const user = await Users.getBy('id', {
 			id: ctx.params.id,
-			isSelfRequest: ctx.params.id === ctx.state.user.id,
+			requestor: ctx.state.user,
 		})
 
 		if (user) {
@@ -40,7 +43,10 @@ router.get('/:id', async ctx => {
 /* Создать пользователя */
 router.post('/', async ctx => {
 	try {
-		ctx.body = await Users.create(ctx.request.body)
+		ctx.body = await Users.create({
+			user: ctx.request.body,
+			requestor: ctx.state.user,
+		})
 	} catch (error) {
 		httpErrorHandler(ctx, error)
 	}
@@ -63,7 +69,12 @@ router.put('/password', async ctx => {
 /* Обновить пользователя */
 router.put('/:id', async ctx => {
 	try {
-		const res = await Users.update(ctx.params.id, ctx.request.body)
+		const res = await Users.update({
+			id: ctx.params.id,
+			user: ctx.request.body,
+			requestor: ctx.state.user,
+		})
+
 		ctx.status = res ? 200 : 404
 	} catch (error) {
 		httpErrorHandler(ctx, error)
@@ -73,7 +84,11 @@ router.put('/:id', async ctx => {
 /* Удалить пользователя */
 router.delete('/:id', async ctx => {
 	try {
-		const res = await Users.remove(ctx.params.id)
+		const res = await Users.remove({
+			id: ctx.params.id,
+			requestor: ctx.state.user,
+		})
+
 		ctx.status = res ? 200 : 404
 	} catch (error) {
 		httpErrorHandler(ctx, error)
