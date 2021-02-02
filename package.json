@@ -29,6 +29,7 @@
 		"@babel/plugin-proposal-optional-chaining": "7.11.0",
 		"@koa/cors": "3.1.0",
 		"@rollup/plugin-run": "2.0.2",
+		"@tinkoff/invest-openapi-js-sdk": "1.2.16",
 		"bcryptjs": "2.4.3",
 		"cross-env": "7.0.2",
 		"cryptr": "6.0.2",

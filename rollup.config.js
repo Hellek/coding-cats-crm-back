@@ -20,6 +20,7 @@ export default {
 		'koa-jwt',
 		'koa-router',
 		'@koa/cors',
+		'@tinkoff/invest-openapi-js-sdk',
 		'pg',
 		'isemail',
 		'bcryptjs',
