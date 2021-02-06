@@ -29,6 +29,7 @@ router.get('/portfolio', async ctx => {
 	try {
 		ctx.body = await TinkoffInvestments.portfolio({
 			user: ctx.state.user,
+			...ctx.query,
 		})
 	} catch (error) {
 		ctx.throw(400, error.message)

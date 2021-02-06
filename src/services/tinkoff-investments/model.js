@@ -2,7 +2,11 @@
 import OpenAPI from '@tinkoff/invest-openapi-js-sdk'
 
 class TinkoffInvestments {
-	constructTikkoffApi({ isRealMode = true, user }) {
+	constructTikkoffApi({
+		isRealMode = true,
+		user,
+		brokerAccountId = null,
+	}) {
 		const apiURL = isRealMode ? 'https://api-invest.tinkoff.ru/openapi' : 'https://api-invest.tinkoff.ru/openapi/sandbox/'
 		// const socketURL = 'wss://api-invest.tinkoff.ru/openapi/md/v1/md-openapi/ws'
 		const secretToken = isRealMode ? user.TIRealToken : user.TISandboxToken
@@ -11,6 +15,7 @@ class TinkoffInvestments {
 			apiURL,
 			secretToken,
 			// socketURL,
+			brokerAccountId,
 		})
 	}
 
@@ -31,14 +36,23 @@ class TinkoffInvestments {
 		from = null,
 		to = null,
 		figi = undefined,
+		brokerAccountId = null,
 	}) {
-		const api = this.constructTikkoffApi({ user })
+		const api = this.constructTikkoffApi({ user, brokerAccountId })
+		const figiStrict = figi || undefined
 
-		return (await api.operations({ from, to, figi })).operations
+		return (await api.operations({
+			from,
+			to,
+			figi: figiStrict,
+		})).operations
 	}
 
-	async portfolio({ user }) {
-		const api = this.constructTikkoffApi({ user })
+	async portfolio({
+		user,
+		brokerAccountId,
+	}) {
+		const api = this.constructTikkoffApi({ user, brokerAccountId })
 
 		return await api.portfolio()
 	}
