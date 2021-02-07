@@ -2,6 +2,10 @@
 import OpenAPI from '@tinkoff/invest-openapi-js-sdk'
 
 class TinkoffInvestments {
+	constructor() {
+		this.instruments = {}
+	}
+
 	constructTikkoffApi({
 		isRealMode = true,
 		user,
@@ -26,9 +30,14 @@ class TinkoffInvestments {
 	}
 
 	async getInstruments({ user, type }) {
+		// TODO сейчас локальное кэширование в памяти, проверить быстрее ли через БД
+		if (this.instruments[type] && this.instruments[type].length) return this.instruments[type]
+
 		const api = this.constructTikkoffApi({ user })
 
-		return (await api[type]()).instruments
+		this.instruments[type] = (await api[type]()).instruments
+
+		return this.instruments[type]
 	}
 
 	async operations({
