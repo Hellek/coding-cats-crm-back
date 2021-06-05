@@ -1,5 +1,6 @@
 import run from '@rollup/plugin-run'
 import babel from 'rollup-plugin-babel'
+import { eslint } from '@rollup/plugin-eslint'
 
 const dev = process.env.NODE_ENV === 'development'
 
@@ -31,6 +32,12 @@ export default {
 		babel({
 			babelrc: false,
 			plugins: ['@babel/plugin-proposal-optional-chaining'],
+		}),
+		eslint({
+			exclude: [
+				'dist/*.js',
+				'local/*.js',
+			],
 		}),
 		dev && run({
 			execArgv: ['-r', 'dotenv/config'],
