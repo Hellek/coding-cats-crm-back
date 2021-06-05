@@ -1,8 +1,10 @@
 import koaRouter from 'koa-router'
 import AuthModel from './model'
+import UsersModel from '../users/model'
 
 const router = new koaRouter()
 const Auth = new AuthModel
+const Users = new UsersModel
 
 router.post('/authenticate', async ctx => {
 	try {
@@ -16,9 +18,12 @@ router.post('/authenticate', async ctx => {
 
 router.post('/refresh', async ctx => {
 	try {
-		const user = await Auth.getValidUserWithPasswordMock({ email: ctx.state.user.email })
-		const token = await Auth.getJwtToken({ user })
-		ctx.body = token
+		const user = await Users.getBy('id', {
+			id: ctx.state.user.id,
+			requestor: ctx.state.user,
+		})
+
+		ctx.body = await Auth.getJwtToken({ user })
 	} catch (error) {
 		ctx.throw(400, error.message)
 	}
