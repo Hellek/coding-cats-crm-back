@@ -87,7 +87,7 @@ class Development {
 	*/
 	async setDefaults(tableName) {
 		if (tableName === 'roles') {
-			const sql = `INSERT INTO  roles (label, rights) VALUES ('Суперадмин', '{}'), ('Бесправный', '{}');`
+			const sql = `INSERT INTO roles (label, rights) VALUES ('Суперадмин', '{}'), ('Бесправный', '{}');`
 			await DB.query(sql)
 		} else {
 			throw Error('SQL для данной таблицы не существует')

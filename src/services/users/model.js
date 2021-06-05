@@ -63,7 +63,6 @@ class Users {
 		try {
 			await DB.query(text, values)
 		} catch (error) {
-			console.log(error)
 			throw Error('Ошибка обновления пароля')
 		}
 	}

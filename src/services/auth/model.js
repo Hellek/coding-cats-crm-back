@@ -67,14 +67,13 @@ class Auth {
 	getJwtToken({ user }) {
 		return new Promise((resolve, reject) => {
 			jsonwebtoken.sign(user, JSON.parse(process.env.SECRET_KEYS).jwt, {
-					algorithm: 'HS512',
-					expiresIn: '48h',
-				},
-				function (error, token) {
-					if (error) reject(error)
-					else resolve(token)
-				}
-			)
+				algorithm: 'HS512',
+				expiresIn: '48h',
+			},
+			function (error, token) {
+				if (error) reject(error)
+				else resolve(token)
+			})
 		})
 	}
 }
