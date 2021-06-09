@@ -35,6 +35,33 @@ class Development {
 				ticker character varying(30) NOT NULL,
 				UNIQUE(ticker)
 			);`
+		} else if (tableName === 'operations') {
+			const enumCurrencies = `CREATE TYPE currencies AS ENUM ('RUB', 'USD', 'EUR', 'GBP', 'HKD', 'CHF', 'JPY', 'CNY', 'TRY');`
+			const enumStatuses = `CREATE TYPE statuses AS ENUM ('Done', 'Decline', 'Progress');`
+			const enumOperationTypes = `CREATE TYPE operationTypes AS ENUM ('Buy', 'BuyCard', 'Sell', 'BrokerCommission', 'ExchangeCommission', 'ServiceCommission', 'MarginCommission', 'OtherCommission', 'PayIn', 'PayOut', 'Tax', 'TaxLucre', 'TaxDividend', 'TaxCoupon', 'TaxBack', 'Repayment', 'PartRepayment', 'Coupon', 'Dividend', 'SecurityIn', 'SecurityOut');`
+			const enumInstrumentTypes = `CREATE TYPE instrumentTypes AS ENUM ('Stock', 'Currency', 'Bond', 'Etf');`
+
+			const operationsTable = `CREATE TABLE operations (
+				userId integer NOT NULL,
+				id text,
+				status statuses,
+				figi text,
+				"operationType" operationTypes,
+				payment real,
+				currency currencies,
+				quantity integer,
+				"quantityExecuted" integer,
+				price real,
+				"instrumentType" instrumentTypes,
+				date timestamp with time zone,
+				"isMarginCall" boolean,
+				commission json,
+				trades json[],
+				FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
+			);`
+
+			sql = `${enumCurrencies}${enumStatuses}${enumOperationTypes}${enumInstrumentTypes}${operationsTable}`
+			message = 'Таблица operations успешно создана. А так же enums: currencies statuses operationTypes instrumentTypes'
 		} else if (tableName === 'ideas') {
 			const tableIdeas = `CREATE TABLE ideas (
 				id serial NOT NULL,
@@ -55,7 +82,7 @@ class Development {
 				PRIMARY KEY(id)
 			);`
 
-			sql = `${tableIdeas};${tableIdeasComments}`
+			sql = `${tableIdeas}${tableIdeasComments}`
 			message = 'Таблицы ideas, ideasComments успешно созданы'
 		} else {
 			throw Error('SQL для данной таблицы не существует')
@@ -75,6 +102,9 @@ class Development {
 		if (tableName === 'ideas') {
 			await DB.query(`DROP TABLE ideasComments, ideas`)
 			message = 'Таблицы ideas, ideasComments успешно удалены'
+		} else if (tableName === 'operations') {
+			await DB.query(`DROP TABLE operations; DROP TYPE currencies, statuses, operationTypes, instrumentTypes;`)
+			message = 'Таблица operations и типы currencies, statuses, operationTypes, instrumentTypes успешно удалены'
 		} else {
 			await DB.query(`DROP TABLE ${tableName}`)
 		}
