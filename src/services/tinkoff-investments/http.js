@@ -1,12 +1,16 @@
 import koaRouter from 'koa-router'
-import TinkoffInvestmentsModel from './model'
+import {
+	TinkoffInvestments as TIM,
+	TinkoffInvestmentsLocal as TILM,
+} from './model'
 
 const router = new koaRouter()
-const TinkoffInvestments = new TinkoffInvestmentsModel
+const TinkoffInvestments = new TIM
+const TinkoffInvestmentsLocal = new TILM
 
 router.get('/accounts', async ctx => {
 	try {
-		ctx.body = await TinkoffInvestments.accounts({
+		ctx.body = await TinkoffInvestments.fetchAccounts({
 			user: ctx.state.user,
 		})
 	} catch (error) {
@@ -27,7 +31,7 @@ router.get('/operations', async ctx => {
 
 router.get('/portfolio', async ctx => {
 	try {
-		ctx.body = await TinkoffInvestments.portfolio({
+		ctx.body = await TinkoffInvestments.fetchPortfolio({
 			user: ctx.state.user,
 			...ctx.query,
 		})
@@ -38,7 +42,7 @@ router.get('/portfolio', async ctx => {
 
 router.get('/instruments/:type', async ctx => {
 	try {
-		ctx.body = await TinkoffInvestments.getInstruments({
+		ctx.body = await TinkoffInvestments.fetchInstruments({
 			user: ctx.state.user,
 			type: ctx.params.type,
 		})
