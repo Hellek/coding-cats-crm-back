@@ -18,9 +18,19 @@ router.get('/accounts', async ctx => {
 	}
 })
 
+router.post('/operations/sync', async ctx => {
+	try {
+		ctx.body = await TinkoffInvestmentsLocal.syncOperations({
+			user: ctx.state.user,
+		})
+	} catch (error) {
+		ctx.throw(400, error.message)
+	}
+})
+
 router.get('/operations', async ctx => {
 	try {
-		ctx.body = await TinkoffInvestments.operations({
+		ctx.body = await TinkoffInvestmentsLocal.getOperations({
 			user: ctx.state.user,
 			...ctx.query,
 		})

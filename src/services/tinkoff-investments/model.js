@@ -70,6 +70,120 @@ class TinkoffInvestments {
 }
 
 class TinkoffInvestmentsLocal extends TinkoffInvestments {
+	#getOperationSql = op => {
+		const text = `INSERT INTO operations (
+			userId,
+			id,
+			status,
+			figi,
+			"operationType",
+			payment,
+			currency,
+			quantity,
+			"quantityExecuted",
+			price,
+			"instrumentType",
+			date,
+			"isMarginCall",
+			commission,
+			trades
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`
+
+		const values = [
+			op.userId,
+			op.id,
+			op.status,
+			op.figi,
+			op.operationType,
+			op.payment,
+			op.currency,
+			op.quantity,
+			op.quantityExecuted,
+			op.price,
+			op.instrumentType,
+			op.date,
+			op.isMarginCall,
+			op.commission,
+			op.trades,
+		]
+
+		return { text, values }
+	}
+
+	async getNewestOperationDate({ user }) {
+		const text = `SELECT MAX(date) FROM operations WHERE userId=$1`
+		const values = [user.id]
+		const { rows } = await DB.query(text, values)
+
+		return rows[0].max
+	}
+
+	async getOperations({
+		user,
+		from = null,
+		to = null,
+		figi = undefined,
+		brokerAccountId = null,
+	}) {
+		let index = 1
+		let text = `SELECT * FROM operations WHERE userId=$${index}`
+		const values = [user.id]
+
+		if (figi) {
+			text += ` AND figi=$${++index}`
+			values.push(figi)
+		}
+
+		if (from) {
+			text += ` AND date>=$${++index}`
+			values.push(from)
+		}
+
+		if (to) {
+			text += ` AND date<=$${++index}`
+			values.push(to)
+		}
+
+		const { rows } = await DB.query(text, values)
+
+		return rows
+	}
+
+	async addOperation(op) {
+		const { text, values } = this.#getOperationSql(op)
+
+		return await DB.query(text, values)
+	}
+
+	async syncOperations({ user }) {
+		const accounts = await this.fetchAccounts({ user })
+		// Temporary just for main account
+		const brokerAccountId = accounts.find(acc => acc.brokerAccountType === 'Tinkoff').brokerAccountId
+		let from = this.brokerEstablishDate
+		const now = new Date()
+		const to = new Date(now.setMonth(now.getMonth() + 1)).toISOString()
+
+		// from - calculating from filter, for new operations
+		const newestOperationDate = await this.getNewestOperationDate({ user })
+		if (newestOperationDate) {
+			const date = new Date(newestOperationDate)
+			// TODO add dayjs
+			from = new Date(date.setMilliseconds(date.getMilliseconds() + 1)).toISOString()
+		}
+
+		const fetchedOperations = await this.fetchOperations({
+			user,
+			from,
+			to,
+			brokerAccountId,
+		})
+
+		await Promise.all(fetchedOperations.map(operation => {
+			return this.addOperation({ userId: user.id, ...operation })
+		}))
+
+		return { added: fetchedOperations.length }
+	}
 }
 
 export { TinkoffInvestments, TinkoffInvestmentsLocal}
