@@ -8,6 +8,9 @@ const pool = new Pool({
 	user: dbSettings.user,
 	password: dbSettings.pass,
 	port: dbSettings.port,
+	ssl: {
+		rejectUnauthorized: false
+	}
 })
 
 export default {
