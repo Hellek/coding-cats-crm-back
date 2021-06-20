@@ -26,6 +26,7 @@ export default {
 		'bcryptjs',
 		'socket.io',
 		'nodemailer',
+		'dayjs',
 	],
 	plugins: [
 		babel({

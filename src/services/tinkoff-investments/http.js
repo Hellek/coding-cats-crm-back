@@ -22,6 +22,7 @@ router.post('/operations/sync', async ctx => {
 	try {
 		ctx.body = await TinkoffInvestmentsLocal.syncOperations({
 			user: ctx.state.user,
+			...ctx.request.body,
 		})
 	} catch (error) {
 		ctx.throw(400, error.message)

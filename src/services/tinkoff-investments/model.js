@@ -1,11 +1,12 @@
 // https://github.com/TinkoffCreditSystems/invest-openapi-js-sdk/blob/master/doc/classes/openapi.md
 import OpenAPI from '@tinkoff/invest-openapi-js-sdk'
+import dayjs from 'dayjs'
 import DB from '../../core/DB'
 
 class TinkoffInvestments {
 	constructor() {
 		this.instruments = {}
-		this.brokerEstablishDate = '2016-01-01T00:00:00+00:00'
+		this.brokerEstablishDate = dayjs('2016-01-01').toISOString()
 	}
 
 	#constructTikkoffApi = ({
@@ -87,7 +88,7 @@ class TinkoffInvestmentsLocal extends TinkoffInvestments {
 			"isMarginCall",
 			commission,
 			trades
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) ON CONFLICT (id) DO NOTHING;`
 
 		const values = [
 			op.userId,
@@ -155,34 +156,44 @@ class TinkoffInvestmentsLocal extends TinkoffInvestments {
 		return await DB.query(text, values)
 	}
 
-	async syncOperations({ user }) {
-		const accounts = await this.fetchAccounts({ user })
-		// Temporary just for main account
-		const brokerAccountId = accounts.find(acc => acc.brokerAccountType === 'Tinkoff').brokerAccountId
-		let from = this.brokerEstablishDate
-		const now = new Date()
-		const to = new Date(now.setMonth(now.getMonth() + 1)).toISOString()
+	async syncOperations({ user, brokerAccountId }) {
+		let accounts = []
 
-		// from - calculating from filter, for new operations
-		const newestOperationDate = await this.getNewestOperationDate({ user })
-		if (newestOperationDate) {
-			const date = new Date(newestOperationDate)
-			// TODO add dayjs
-			from = new Date(date.setMilliseconds(date.getMilliseconds() + 1)).toISOString()
+		if (!brokerAccountId) {
+			accounts = await this.fetchAccounts({ user })
+			brokerAccountId = accounts.find(acc => acc.brokerAccountType === 'Tinkoff').brokerAccountId
 		}
 
-		const fetchedOperations = await this.fetchOperations({
-			user,
-			from,
-			to,
-			brokerAccountId,
-		})
+		let from = dayjs(this.brokerEstablishDate)
+		const to = dayjs().add(1, 'month')
+		const newestOperationDate = await this.getNewestOperationDate({ user })
 
-		await Promise.all(fetchedOperations.map(operation => {
-			return this.addOperation({ userId: user.id, ...operation })
-		}))
+		if (newestOperationDate) {
+			from = dayjs(newestOperationDate).add(1, 'millisecond')
+		}
 
-		return { added: fetchedOperations.length }
+		const diffCount = to.diff(from, 'month')
+		let added = 0
+
+		for (let index = 0; index < diffCount; index++) {
+			const iterationFrom = from.add(Math.abs(index), 'month')
+			const iterationTo = from.add(Math.abs(index + 1), 'month')
+
+			const fetchedOperations = await this.fetchOperations({
+				user,
+				from: iterationFrom.toISOString(),
+				to: iterationTo.toISOString(),
+				brokerAccountId,
+			})
+
+			await Promise.all(fetchedOperations.map(operation => {
+				return this.addOperation({ userId: user.id, ...operation })
+			}))
+
+			added += fetchedOperations.length
+		}
+
+		return { added }
 	}
 }
 
