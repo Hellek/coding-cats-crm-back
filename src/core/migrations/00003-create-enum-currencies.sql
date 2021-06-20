@@ -1,0 +1,1 @@
+CREATE TYPE currencies AS ENUM ('RUB', 'USD', 'EUR', 'GBP', 'HKD', 'CHF', 'JPY', 'CNY', 'TRY');

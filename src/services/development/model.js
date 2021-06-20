@@ -8,21 +8,7 @@ class Development {
 		let sql = ''
 		let message = null
 
-		if (tableName === 'users') {
-			sql = `CREATE TABLE users (
-				id serial NOT NULL,
-				active boolean NOT NULL DEFAULT FALSE,
-				email character varying(50) UNIQUE,
-				"firstName" character varying(50),
-				"lastName" character varying(50),
-				password character varying(80),
-				phone character varying(11),
-				created timestamp with time zone DEFAULT now(),
-				"TIRealToken" character varying(800),
-				"TISandboxToken" character varying(800),
-				PRIMARY KEY(id)
-			);`
-		} else if (tableName === 'roles') {
+		if (tableName === 'roles') {
 			sql = `CREATE TABLE roles (
 				id serial NOT NULL,
 				label character varying(100) NOT NULL,
@@ -35,33 +21,6 @@ class Development {
 				ticker character varying(30) NOT NULL,
 				UNIQUE(ticker)
 			);`
-		} else if (tableName === 'operations') {
-			const enumCurrencies = `CREATE TYPE currencies AS ENUM ('RUB', 'USD', 'EUR', 'GBP', 'HKD', 'CHF', 'JPY', 'CNY', 'TRY');`
-			const enumStatuses = `CREATE TYPE statuses AS ENUM ('Done', 'Decline', 'Progress');`
-			const enumOperationTypes = `CREATE TYPE operationTypes AS ENUM ('Buy', 'BuyCard', 'Sell', 'BrokerCommission', 'ExchangeCommission', 'ServiceCommission', 'MarginCommission', 'OtherCommission', 'PayIn', 'PayOut', 'Tax', 'TaxLucre', 'TaxDividend', 'TaxCoupon', 'TaxBack', 'Repayment', 'PartRepayment', 'Coupon', 'Dividend', 'SecurityIn', 'SecurityOut');`
-			const enumInstrumentTypes = `CREATE TYPE instrumentTypes AS ENUM ('Stock', 'Currency', 'Bond', 'Etf');`
-
-			const operationsTable = `CREATE TABLE operations (
-				userId integer NOT NULL,
-				id text,
-				status statuses,
-				figi text,
-				"operationType" operationTypes,
-				payment real,
-				currency currencies,
-				quantity integer,
-				"quantityExecuted" integer,
-				price real,
-				"instrumentType" instrumentTypes,
-				date timestamp with time zone,
-				"isMarginCall" boolean,
-				commission json,
-				trades json[],
-				FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
-			);`
-
-			sql = `${enumCurrencies}${enumStatuses}${enumOperationTypes}${enumInstrumentTypes}${operationsTable}`
-			message = 'Таблица operations успешно создана. А так же enums: currencies statuses operationTypes instrumentTypes'
 		} else if (tableName === 'ideas') {
 			const tableIdeas = `CREATE TABLE ideas (
 				id serial NOT NULL,

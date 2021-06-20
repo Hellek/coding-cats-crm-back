@@ -1,0 +1,1 @@
+CREATE TYPE statuses AS ENUM ('Done', 'Decline', 'Progress');

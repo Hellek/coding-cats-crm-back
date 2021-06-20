@@ -1,0 +1,1 @@
+CREATE TYPE instrumentTypes AS ENUM ('Stock', 'Currency', 'Bond', 'Etf');
