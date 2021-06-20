@@ -1,0 +1,1 @@
+INSERT INTO roles (label, rights) VALUES ('Суперадмин', '{}'), ('Бесправный', '{}');

@@ -1,4 +1,3 @@
-import { generateHash } from '../utils/common'
 import DB from '../../core/DB'
 
 class Ideas {
@@ -7,8 +6,8 @@ class Ideas {
 	*/
 	async create(idea, user) {
 		try {
-			const text = 'INSERT INTO ideas (ticker, userId) VALUES ($1, $2) RETURNING *'
-			const values = [idea.ticker, user.id]
+			const text = 'INSERT INTO ideas (figi, userId) VALUES ($1, $2) RETURNING *'
+			const values = [idea.figi, user.id]
 			const { rows } = await DB.query(text, values)
 
 			return { ...rows[0], comments: [] }
@@ -85,7 +84,7 @@ class Ideas {
 		limit = 2000,
 		user,
 	}) {
-		const { rows } = await DB.query('SELECT id, ticker, active, created FROM ideas WHERE userId=$1 LIMIT $2', [
+		const { rows } = await DB.query('SELECT id, figi, active, created FROM ideas WHERE userId=$1 LIMIT $2', [
 			user.id,
 			limit,
 		])
