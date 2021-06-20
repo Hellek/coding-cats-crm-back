@@ -2,15 +2,15 @@ import { Pool } from 'pg'
 
 const dbSettings = JSON.parse(process.env.DATABASE)
 
-const pool = new Pool({
+const ssl = process.env.ENV === 'development' ? false : { rejectUnauthorized: false }
+
+export const pool = new Pool({
 	host: dbSettings.host,
 	database: dbSettings.name,
 	user: dbSettings.user,
 	password: dbSettings.pass,
 	port: dbSettings.port,
-	ssl: {
-		rejectUnauthorized: false
-	}
+	ssl,
 })
 
 export default {
