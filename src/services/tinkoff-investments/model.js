@@ -81,7 +81,7 @@ class TinkoffInvestments {
 }
 
 class TinkoffInvestmentsLocal extends TinkoffInvestments {
-	#getOperationSql = op => {
+	#getInsertOperationSql = op => {
 		const text = `INSERT INTO operations (
 			userId,
 			id,
@@ -137,23 +137,25 @@ class TinkoffInvestmentsLocal extends TinkoffInvestments {
 		brokerAccountId = null,
 	}) {
 		let index = 1
-		let text = `SELECT * FROM operations WHERE userId=$${index}`
+		let whereConditions = ''
 		const values = [user.id]
 
 		if (figi) {
-			text += ` AND figi=$${++index}`
+			whereConditions += ` AND figi=$${++index}`
 			values.push(figi)
 		}
 
 		if (from) {
-			text += ` AND date>=$${++index}`
+			whereConditions += ` AND date>=$${++index}`
 			values.push(from)
 		}
 
 		if (to) {
-			text += ` AND date<=$${++index}`
+			whereConditions += ` AND date<=$${++index}`
 			values.push(to)
 		}
+
+		let text = `SELECT * FROM operations WHERE userId=$1${whereConditions} ORDER BY date DESC`
 
 		const { rows } = await DB.query(text, values)
 
@@ -161,7 +163,7 @@ class TinkoffInvestmentsLocal extends TinkoffInvestments {
 	}
 
 	async addOperation(op) {
-		const { text, values } = this.#getOperationSql(op)
+		const { text, values } = this.#getInsertOperationSql(op)
 
 		return await DB.query(text, values)
 	}
