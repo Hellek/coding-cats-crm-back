@@ -219,6 +219,10 @@ class TinkoffInvestmentsLocal extends TinkoffInvestments {
 
 		return rows.map(row => row.figi)
 	}
+
+	async deleteOperation({ user }) {
+		return 0 < (await DB.query('DELETE FROM operations WHERE userId=$1', [user.id])).rowCount
+	}
 }
 
 export { TinkoffInvestments, TinkoffInvestmentsLocal}

@@ -40,6 +40,20 @@ router.get('/operations', async ctx => {
 	}
 })
 
+/* Удалить все свои операции */
+router.delete('/operations', async ctx => {
+	try {
+		const res = await TinkoffInvestmentsLocal.deleteOperation({
+			user: ctx.state.user,
+		})
+
+		ctx.status = res ? 200 : 404
+	} catch (error) {
+		console.log(error);
+		httpErrorHandler(ctx, error)
+	}
+})
+
 router.get('/used-instruments', async ctx => {
 	try {
 		ctx.body = await TinkoffInvestmentsLocal.getUsedInstruments({
