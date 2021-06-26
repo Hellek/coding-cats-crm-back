@@ -98,7 +98,7 @@ class TinkoffInvestmentsLocal extends TinkoffInvestments {
 			"isMarginCall",
 			commission,
 			trades
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) ON CONFLICT (id) DO NOTHING;`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) ON CONFLICT (id, userId) DO NOTHING;`
 
 		const values = [
 			op.userId,
