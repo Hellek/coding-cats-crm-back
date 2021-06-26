@@ -61,6 +61,17 @@ router.get('/portfolio', async ctx => {
 	}
 })
 
+router.get('/portfolio/instrument', async ctx => {
+	try {
+		ctx.body = await TinkoffInvestments.fetchInstrumentPortfolio({
+			user: ctx.state.user,
+			...ctx.query,
+		})
+	} catch (error) {
+		ctx.throw(400, error.message)
+	}
+})
+
 router.get('/instruments/:type', async ctx => {
 	try {
 		ctx.body = await TinkoffInvestments.fetchInstruments({

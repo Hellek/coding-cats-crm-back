@@ -68,6 +68,16 @@ class TinkoffInvestments {
 
 		return await api.portfolio()
 	}
+
+	async fetchInstrumentPortfolio({
+		user,
+		brokerAccountId,
+		figi,
+	}) {
+		const api = this.#constructTikkoffApi({ user, brokerAccountId })
+
+		return await api.instrumentPortfolio({ figi })
+	}
 }
 
 class TinkoffInvestmentsLocal extends TinkoffInvestments {
