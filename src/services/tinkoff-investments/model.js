@@ -195,6 +195,18 @@ class TinkoffInvestmentsLocal extends TinkoffInvestments {
 
 		return { added }
 	}
+
+	async getUsedInstruments({
+		user,
+	}) {
+		let index = 1
+		let text = `SELECT DISTINCT figi FROM operations WHERE userId=$${index}`
+		const values = [user.id]
+
+		const { rows } = await DB.query(text, values)
+
+		return rows.map(row => row.figi)
+	}
 }
 
 export { TinkoffInvestments, TinkoffInvestmentsLocal}
