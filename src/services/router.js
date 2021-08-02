@@ -29,7 +29,7 @@ router.all('/:service?/:method?', async (ctx, next) => {
 // Auth check
 // TODO проверить верификацию
 router.use(koaJwt({ secret: JSON.parse(process.env.SECRET_KEYS).jwt })
-	.unless({ path: [/^\/auth\/(authenticate|password)(\/reset)?/] }))
+	.unless({ path: [/^\/external|auth\/(authenticate|password)(\/reset)?/] }))
 
 setServiceRoutes(router)
 
