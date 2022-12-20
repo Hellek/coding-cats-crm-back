@@ -10,17 +10,16 @@
 	},
 	"license": "ISC",
 	"engines": {
-		"node": "14.x"
+		"node": "16.x"
 	},
 	"scripts": {
-		"dev": "npm run migrate:build:dev && npm run migrate:serve:dev && cross-env NODE_ENV=development rollup -c -w",
-		"yarn": "yarn",
+		"dev": "yarn && cross-env NODE_ENV=development rollup -c -w",
 		"migrate:build:dev": "cross-env NODE_ENV=development rollup -c rollup.config.migrations.js",
 		"migrate:build:prod": "cross-env NODE_ENV=production rollup -c rollup.config.migrations.js",
 		"migrate:serve:prod": "cross-env NODE_ENV=production node dist/migrations.js",
 		"migrate:serve:dev": "cross-env NODE_ENV=development node dist/migrations.js",
 		"app:serve": "cross-env NODE_ENV=production node dist/index.js",
-		"app:build": "npm run migrate:build:prod && npm run migrate:serve:prod && cross-env NODE_ENV=production rollup -c",
+		"app:build": "cross-env NODE_ENV=production rollup -c",
 		"heroku:deploy": "git push heroku master --force",
 		"heroku:logs": "heroku logs --tail",
 		"heroku:pg:connect": "heroku pg:psql postgresql-animate-99818 --app coding-cats-crm-back",
